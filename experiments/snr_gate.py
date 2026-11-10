@@ -1,6 +1,7 @@
 """Signal-to-noise gate (build step 2): which intervention window and branch length make responsibility measurable?
+(--env lbf or rware; see envs.py.)
 
-For each (window, horizon) setting this measures, on held-out decision points of four-agent Level-Based Foraging:
+For each (window, horizon) setting this measures, on held-out decision points of the chosen four-agent task:
   - mean absolute responsibility (the signal), from all 16 groups with `reps` shared-random-number repetitions;
   - the standard error of that ground truth, relative to the signal (gate condition 1: below 0.10);
   - the relative error of a 32-branch permutation (Monte Carlo) estimate (gate condition 2: below 1.0, the zero
@@ -20,8 +21,8 @@ import numpy as np
 sys.path.insert(0, "src")
 sys.path.insert(0, "experiments")
 from accteams.branching import all_masks, make_branch_fn, shapley_from_mask_values
-from lbf_smoke import FOOD, GRID, N, NUM_ACTIONS, T_COLLECT, collect, scripted_policy, take
-from jumanji.environments.routing.lbf import env as lbfenv, generator
+from envs import collect, get_env
+from lbf_smoke import take
 
 
 def shapley_weights(n):
@@ -39,6 +40,7 @@ def shapley_weights(n):
 
 def main():
     ap = argparse.ArgumentParser()
+    ap.add_argument("--env", default="lbf", choices=["lbf", "rware"])
     ap.add_argument("--windows", default="1,3,5,10")
     ap.add_argument("--horizons", default="5,10,15,25")
     ap.add_argument("--eval", type=int, default=60)
@@ -48,13 +50,12 @@ def main():
     ap.add_argument("--seed", type=int, default=0)
     ap.add_argument("--out", default="experiments/snr_gate.json")
     args = ap.parse_args()
-    env = lbfenv.LevelBasedForaging(
-        generator=generator.RandomGenerator(grid_size=GRID, fov=GRID, num_agents=N, num_food=FOOD, force_coop=True),
-        time_limit=50)
+    spec = get_env(args.env)
+    N, T_COLLECT, scripted_policy = spec.n, spec.collect_steps, spec.policy
     rng = np.random.default_rng(args.seed)
     key = jax.random.PRNGKey(args.seed)
-    states, obs = collect(env, key, args.eval * 4 // T_COLLECT + 10)
-    live = np.where(~np.asarray(states.food_items.eaten).all(1))[0]
+    states, obs, last = collect(spec, key, args.eval * 4 // T_COLLECT + 10)
+    live = np.where(spec.live(states) & ~last)[0]
     ev = rng.permutation(live)[: args.eval]
     s_ev, o_ev = take(states, ev), take(obs, ev)
     a_ev = jax.vmap(scripted_policy)(o_ev, jax.random.split(jax.random.fold_in(key, 1), len(ev)))
@@ -65,7 +66,7 @@ def main():
         if window > horizon or (args.diagonal and window != horizon):
             continue
         t0 = time.time()
-        branch = make_branch_fn(env.step, scripted_policy, jnp.zeros(N, jnp.int32), horizon=horizon, gamma=0.99,
+        branch = make_branch_fn(spec.step, scripted_policy, spec.reference_action, horizon=horizon, gamma=0.99,
                                 window=window)
         crn = jax.jit(lambda s, a, k: jax.vmap(branch, in_axes=(None, None, 0, 0))(
             s, a, masks16, jnp.tile(jax.random.split(k, args.reps), (2 ** N, 1))))
