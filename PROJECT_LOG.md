@@ -60,6 +60,13 @@ Neither side can prove an idea is new. Claims are worded "searches up to <date> 
 
 ## Results (all exploratory until the prereg-v1 tag)
 
+- 2026-11-10 — GATE PASSED on Level-Based Foraging (4 agents), Colab T4. Window = branch length 5 to 25 all pass
+  conditions 1 and 2 (ground-truth se 0.07-0.08 of the signal). Condition 3 at window 20: kernel critic 0.65 +/-
+  0.05 against 32-branch Monte Carlo 0.93 +/- 0.05, better on all 3 seeds; most consequential quarter 0.56
+  against 0.69. At window 10: 0.92 against 0.99 (better on all 3 seeds, narrowly). The paired-difference critic
+  does not help when window = branch length. The critic uses about one branch per training decision and none at
+  read-out. File: `experiments/colab_gate_2026-11-10.json`.
+
 - 2026-11-10 — Colab (T4) build step 1 PASSED: 14/14 tests; tier-1 pilot reproduces the CPU numbers (kernel 0.37,
   pair 0.55, additive 0.53, gap +0.13 at 20k returns). LBF smoke window 1 and 5 reproduce the CPU runs; about
   1 min a seed on the T4 against 3 min on CPU.
@@ -79,9 +86,10 @@ Neither side can prove an idea is new. Claims are worded "searches up to <date> 
 
 ## Open questions
 
-1. Signal-to-noise on tier 2: on LBF, window = branch length (5 or 10) passes conditions 1 and 2, narrowly.
-   Still open: condition 3 (critic beats Monte Carlo), longer diagonals, RobotWarehouse. Window interventions
-   change what responsibility means (a stretch of behaviour, not one decision); the design must say so.
+1. Gate passed on LBF at window = branch length = 20. Still open: RobotWarehouse; the same test with a learned
+   (MAPPO) team instead of the scripted one; and the design text, because window interventions change what
+   responsibility means (a stretch of an agent's behaviour, not one decision). Decide the window per task and
+   freeze it before prereg-v1.
 2. Does the amortised critic beat per-decision Kernel SHAP at equal branches? (Reviewer 2's question.)
 3. Finite-sample bound for the shared network (T3, amortised).
 4. Credit mode: which centring of the responsibility readout to use as MAPPO's advantage.

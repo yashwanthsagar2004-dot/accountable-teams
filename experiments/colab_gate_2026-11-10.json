@@ -1,0 +1,198 @@
+{
+ "note": "Transcribed from the Colab (Tesla T4) cell outputs on 2026-11-10; Colab session files are not persisted. Exploratory, not pre-registered.",
+ "commit": "c71ec0d",
+ "gate_diagonal": {
+  "command": "python experiments/snr_gate.py --diagonal --windows 5,10,15,20,25 --horizons 5,10,15,20,25 --eval 60 --reps 400",
+  "rows": [
+   {
+    "window": 5,
+    "horizon": 5,
+    "signal": 0.0162,
+    "ground_truth_se_rel": 0.08,
+    "mc32_rel_err": 0.96,
+    "snr": 0.23,
+    "passes_1_and_2": true
+   },
+   {
+    "window": 10,
+    "horizon": 10,
+    "signal": 0.0312,
+    "ground_truth_se_rel": 0.08,
+    "mc32_rel_err": 0.93,
+    "snr": 0.256,
+    "passes_1_and_2": true
+   },
+   {
+    "window": 15,
+    "horizon": 15,
+    "signal": 0.0435,
+    "ground_truth_se_rel": 0.08,
+    "mc32_rel_err": 0.97,
+    "snr": 0.292,
+    "passes_1_and_2": true
+   },
+   {
+    "window": 20,
+    "horizon": 20,
+    "signal": 0.0532,
+    "ground_truth_se_rel": 0.07,
+    "mc32_rel_err": 0.83,
+    "snr": 0.324,
+    "passes_1_and_2": true
+   },
+   {
+    "window": 25,
+    "horizon": 25,
+    "signal": 0.0595,
+    "ground_truth_se_rel": 0.07,
+    "mc32_rel_err": 0.91,
+    "snr": 0.351,
+    "passes_1_and_2": true
+   }
+  ]
+ },
+ "gate_off_diagonal_summary": "Earlier sweep (commit 8e324ac): all 10 settings with steps after the window fail conditions 1 and 2.",
+ "condition_3": {
+  "command": "python experiments/lbf_smoke.py --decisions 300000 --eval 100 --reps 200 --seeds 3 --train-steps 20000 --batch 2048 --patience 100000 --window W --horizon W",
+  "window_10": {
+   "per_seed": [
+    {
+     "seed": 0,
+     "critic": 0.836,
+     "paired": 0.893,
+     "mc32": 0.964,
+     "critic_top_quarter": 0.7,
+     "mc32_top_quarter": 0.734,
+     "top_agent_match": 0.45
+    },
+    {
+     "seed": 1,
+     "critic": 0.998,
+     "paired": 1.052,
+     "mc32": 1.031,
+     "critic_top_quarter": 0.647,
+     "mc32_top_quarter": 0.759,
+     "top_agent_match": 0.44
+    },
+    {
+     "seed": 2,
+     "critic": 0.915,
+     "paired": 0.922,
+     "mc32": 0.973,
+     "critic_top_quarter": 0.697,
+     "mc32_top_quarter": 0.769,
+     "top_agent_match": 0.49
+    }
+   ],
+   "mean_sd": {
+    "critic": [
+     0.916,
+     0.066
+    ],
+    "paired": [
+     0.956,
+     0.069
+    ],
+    "mc32": [
+     0.989,
+     0.03
+    ],
+    "critic_top_quarter": [
+     0.681,
+     0.024
+    ],
+    "mc32_top_quarter": [
+     0.754,
+     0.015
+    ],
+    "ground_truth_se_rel": [
+     0.092,
+     0.006
+    ]
+   }
+  },
+  "window_20": {
+   "per_seed": [
+    {
+     "seed": 0,
+     "critic": 0.596,
+     "paired": 0.671,
+     "mc32": 0.86,
+     "critic_top_quarter": 0.577,
+     "mc32_top_quarter": 0.653,
+     "top_agent_match": 0.57
+    },
+    {
+     "seed": 1,
+     "critic": 0.713,
+     "paired": 0.754,
+     "mc32": 0.983,
+     "critic_top_quarter": 0.566,
+     "mc32_top_quarter": 0.748,
+     "top_agent_match": 0.53
+    },
+    {
+     "seed": 2,
+     "critic": 0.653,
+     "paired": 0.695,
+     "mc32": 0.932,
+     "critic_top_quarter": 0.539,
+     "mc32_top_quarter": 0.68,
+     "top_agent_match": 0.55
+    }
+   ],
+   "mean_sd": {
+    "critic": [
+     0.654,
+     0.048
+    ],
+    "paired": [
+     0.707,
+     0.035
+    ],
+    "mc32": [
+     0.925,
+     0.051
+    ],
+    "critic_top_quarter": [
+     0.561,
+     0.016
+    ],
+    "paired_top_quarter": [
+     0.652,
+     0.009
+    ],
+    "mc32_top_quarter": [
+     0.694,
+     0.04
+    ],
+    "ground_truth_se_rel": [
+     0.079,
+     0.004
+    ]
+   }
+  }
+ },
+ "build_step_1": {
+  "tests": "14 passed",
+  "tier1_pilot_20k": {
+   "kernel": [
+    0.37,
+    0.049
+   ],
+   "pair": [
+    0.547,
+    0.076
+   ],
+   "additive_onpolicy": [
+    0.527,
+    0.035
+   ],
+   "additive_gap": [
+    0.133,
+    0.073
+   ]
+  },
+  "seconds_per_lbf_seed_t4": "about 60 to 90"
+ }
+}
