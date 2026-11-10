@@ -60,6 +60,12 @@ Neither side can prove an idea is new. Claims are worded "searches up to <date> 
 
 ## Results (all exploratory until the prereg-v1 tag)
 
+- 2026-11-10 — RobotWarehouse (4 agents, scripted team, Colab T4). Gate conditions 1 and 2 pass at every
+  window 5-25, far more easily than LBF (ground-truth se 0.03-0.05; 32-branch Monte Carlo 0.23-0.34).
+  Condition 3 FAILS with the basic critic inputs at window 10: kernel critic 0.95 +/- 0.06 against Monte Carlo
+  0.27 +/- 0.01 (all 3 seeds). Retest with richer inputs (carried-shelf status, target distance, local 5x5 map)
+  and a 256-wide critic running. File: `experiments/colab_rware_2026-11-10.json`.
+
 - 2026-11-10 — GATE PASSED on Level-Based Foraging (4 agents), Colab T4. Window = branch length 5 to 25 all pass
   conditions 1 and 2 (ground-truth se 0.07-0.08 of the signal). Condition 3 at window 20: kernel critic 0.65 +/-
   0.05 against 32-branch Monte Carlo 0.93 +/- 0.05, better on all 3 seeds; most consequential quarter 0.56

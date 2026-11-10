@@ -1,0 +1,104 @@
+{
+ "note": "Transcribed from the Colab (Tesla T4) cell output on 2026-11-10; exploratory.",
+ "env": "rware: 4 agents, 1x3 shelf columns of height 8, 4 requests, scripted team with shortest-path steering and a collision guard (about 3.5 deliveries per 90 steps)",
+ "gate_diagonal": {
+  "commit": "f5048a2",
+  "command": "python experiments/snr_gate.py --env rware --diagonal --windows 5,10,15,20,25 --horizons 5,10,15,20,25 --eval 60 --reps 400",
+  "rows": [
+   {
+    "window": 5,
+    "signal": 0.0442,
+    "ground_truth_se_rel": 0.03,
+    "mc32_rel_err": 0.23,
+    "passes_1_and_2": true
+   },
+   {
+    "window": 10,
+    "signal": 0.0955,
+    "ground_truth_se_rel": 0.038,
+    "mc32_rel_err": 0.244,
+    "passes_1_and_2": true
+   },
+   {
+    "window": 15,
+    "signal": 0.1553,
+    "ground_truth_se_rel": 0.046,
+    "mc32_rel_err": 0.335,
+    "passes_1_and_2": true
+   },
+   {
+    "window": 20,
+    "signal": 0.2151,
+    "ground_truth_se_rel": 0.044,
+    "mc32_rel_err": 0.336,
+    "passes_1_and_2": true
+   },
+   {
+    "window": 25,
+    "signal": 0.2732,
+    "ground_truth_se_rel": 0.039,
+    "passes_1_and_2": true
+   }
+  ]
+ },
+ "condition_3_window_10_basic_features": {
+  "commit": "f5048a2",
+  "per_seed": [
+   {
+    "seed": 0,
+    "critic": 0.973,
+    "paired": 1.087,
+    "mc32": 0.266,
+    "critic_top_quarter": 0.552,
+    "mc32_top_quarter": 0.17
+   },
+   {
+    "seed": 1,
+    "critic": 0.867,
+    "paired": 0.925,
+    "mc32": 0.254,
+    "critic_top_quarter": 0.473,
+    "mc32_top_quarter": 0.147
+   },
+   {
+    "seed": 2,
+    "critic": 1.012,
+    "paired": 1.126,
+    "mc32": 0.285,
+    "critic_top_quarter": 0.623,
+    "mc32_top_quarter": 0.187
+   }
+  ],
+  "mean_sd": {
+   "critic": [
+    0.95,
+    0.061
+   ],
+   "paired": [
+    1.046,
+    0.087
+   ],
+   "mc32": [
+    0.268,
+    0.013
+   ],
+   "critic_top_quarter": [
+    0.549,
+    0.061
+   ],
+   "mc32_top_quarter": [
+    0.168,
+    0.016
+   ],
+   "ground_truth_se_rel": [
+    0.039,
+    0.001
+   ],
+   "mean_abs_phi": [
+    0.105,
+    0.008
+   ]
+  },
+  "verdict": "FAILS condition 3: per-decision Monte Carlo is far better. The window-20 run was stopped to retest with richer features."
+ }
+}
