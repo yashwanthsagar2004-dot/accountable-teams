@@ -63,8 +63,10 @@ Neither side can prove an idea is new. Claims are worded "searches up to <date> 
 - 2026-11-10 — RobotWarehouse (4 agents, scripted team, Colab T4). Gate conditions 1 and 2 pass at every
   window 5-25, far more easily than LBF (ground-truth se 0.03-0.05; 32-branch Monte Carlo 0.23-0.34).
   Condition 3 FAILS with the basic critic inputs at window 10: kernel critic 0.95 +/- 0.06 against Monte Carlo
-  0.27 +/- 0.01 (all 3 seeds). Retest with richer inputs (carried-shelf status, target distance, local 5x5 map)
-  and a 256-wide critic running. File: `experiments/colab_rware_2026-11-10.json`.
+  0.27 +/- 0.01 (all 3 seeds). With richer inputs (carried-shelf status, target distance, local 5x5 map) and a
+  256-wide critic: 0.58 +/- 0.04, still behind Monte Carlo on all 3 seeds. The critic is worth about 7
+  per-decision branches here (1 branch per decision in training, none at read-out), against more than 32 on
+  LBF. File: `experiments/colab_rware_2026-11-10.json`.
 
 - 2026-11-10 — GATE PASSED on Level-Based Foraging (4 agents), Colab T4. Window = branch length 5 to 25 all pass
   conditions 1 and 2 (ground-truth se 0.07-0.08 of the signal). Condition 3 at window 20: kernel critic 0.65 +/-
@@ -92,7 +94,11 @@ Neither side can prove an idea is new. Claims are worded "searches up to <date> 
 
 ## Open questions
 
-1. Gate passed on LBF at window = branch length = 20. Still open: RobotWarehouse; the same test with a learned
+0. Condition 3 on RobotWarehouse fails as written (critic 0.58 against 32-branch Monte Carlo 0.27). Options:
+   (a) report accuracy against the per-decision branch budget and claim amortisation only where it holds;
+   (b) more training branches and a permutation-invariant (per-agent, shared-weight) critic;
+   (c) a hybrid that spends a few audit branches where the critic is uncertain. Decide before prereg-v1.
+1. Gate passed on LBF at window = branch length = 20. Still open: the same test with a learned
    (MAPPO) team instead of the scripted one; and the design text, because window interventions change what
    responsibility means (a stretch of an agent's behaviour, not one decision). Decide the window per task and
    freeze it before prereg-v1.

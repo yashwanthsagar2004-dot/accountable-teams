@@ -100,5 +100,58 @@
    ]
   },
   "verdict": "FAILS condition 3: per-decision Monte Carlo is far better. The window-20 run was stopped to retest with richer features."
+ },
+ "condition_3_window_10_rich_features": {
+  "commit": "e0e91af",
+  "command": "python experiments/lbf_smoke.py --env rware --decisions 300000 --eval 100 --reps 200 --seeds 3 --train-steps 40000 --batch 4096 --hidden 256 --patience 100000 --window 10 --horizon 10",
+  "per_seed": [
+   {
+    "seed": 0,
+    "critic": 0.578,
+    "paired": 0.591,
+    "mc32": 0.266,
+    "critic_top_quarter": 0.331,
+    "mc32_top_quarter": 0.17,
+    "top_agent_match": 0.52
+   },
+   {
+    "seed": 1,
+    "critic": 0.521,
+    "paired": 0.645,
+    "mc32": 0.254,
+    "critic_top_quarter": 0.295,
+    "mc32_top_quarter": 0.147,
+    "top_agent_match": 0.57
+   },
+   {
+    "seed": 2,
+    "critic": 0.628,
+    "paired": 0.767,
+    "mc32": 0.285,
+    "critic_top_quarter": 0.442,
+    "mc32_top_quarter": 0.187,
+    "top_agent_match": 0.63
+   }
+  ],
+  "mean_sd": {
+   "critic": [
+    0.576,
+    0.044
+   ],
+   "paired": [
+    0.668,
+    0.074
+   ],
+   "mc32": [
+    0.268,
+    0.013
+   ],
+   "top_agent_match": [
+    0.573,
+    0.045
+   ]
+  },
+  "per_decision_equivalent": "If Monte Carlo error scales as 1/sqrt(branches), the critic matches Monte Carlo with about 32*(0.268/0.576)^2 = 7 branches per decision; it is trained on about 1 branch per decision and costs none at read-out.",
+  "verdict": "Still FAILS condition 3 as written. Richer inputs cut the critic's error from 0.95 to 0.58."
  }
 }
