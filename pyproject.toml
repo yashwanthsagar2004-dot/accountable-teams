@@ -1,0 +1,22 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "accteams"
+version = "0.1.0"
+description = "Accountable-by-design agent teams: responsibility from executed interventions"
+readme = "README.md"
+license = {text = "Apache-2.0"}
+requires-python = ">=3.10"
+dependencies = ["numpy>=1.26", "jax>=0.4.30", "optax>=0.2"]
+
+[project.optional-dependencies]
+dev = ["pytest>=8"]
+rl = ["jaxmarl", "jumanji"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
