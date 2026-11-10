@@ -60,6 +60,14 @@ Neither side can prove an idea is new. Claims are worded "searches up to <date> 
 
 ## Results (all exploratory until the prereg-v1 tag)
 
+- 2026-11-10 — Colab (T4) build step 1 PASSED: 14/14 tests; tier-1 pilot reproduces the CPU numbers (kernel 0.37,
+  pair 0.55, additive 0.53, gap +0.13 at 20k returns). LBF smoke window 1 and 5 reproduce the CPU runs; about
+  1 min a seed on the T4 against 3 min on CPU.
+- 2026-11-10 — Colab gate sweep (60 decisions, 400 repetitions, 15 settings): conditions 1 and 2 pass only when
+  the intervention lasts the whole branch. Window 5 / branch 5: ground-truth se 0.08 of the signal, 32-branch
+  Monte Carlo 0.96. Window 10 / branch 10: 0.08 and 0.93. Every setting with steps after the window fails.
+  Next: extend the diagonal (15, 20, 25), then condition 3 with lbf_smoke.py --window 10 --horizon 10.
+
 - 2026-11-10 — LBF smoke test, 4 agents, 3 seeds, 300k branches: nothing beats the zero predictor. One decision:
   kernel 3.72, paired 1.92, Monte Carlo (32 branches) 1.69. Five-step window: kernel 1.52, paired 1.20, Monte
   Carlo 1.73; paired critic 0.96 on the most consequential quarter. Mean absolute responsibility 0.006 against a
@@ -71,8 +79,9 @@ Neither side can prove an idea is new. Claims are worded "searches up to <date> 
 
 ## Open questions
 
-1. Signal-to-noise on tier 2: which window, horizon and pairing make a 32-branch Monte Carlo estimate beat the
-   zero predictor on LBF and RobotWarehouse? (Gate before any MAPPO work.)
+1. Signal-to-noise on tier 2: on LBF, window = branch length (5 or 10) passes conditions 1 and 2, narrowly.
+   Still open: condition 3 (critic beats Monte Carlo), longer diagonals, RobotWarehouse. Window interventions
+   change what responsibility means (a stretch of behaviour, not one decision); the design must say so.
 2. Does the amortised critic beat per-decision Kernel SHAP at equal branches? (Reviewer 2's question.)
 3. Finite-sample bound for the shared network (T3, amortised).
 4. Credit mode: which centring of the responsibility readout to use as MAPPO's advantage.
