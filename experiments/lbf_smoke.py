@@ -80,13 +80,14 @@ def main():
     ap.add_argument("--train-steps", type=int, default=8000)
     ap.add_argument("--batch", type=int, default=512)
     ap.add_argument("--window", type=int, default=1, help="steps for which absent agents take the reference")
+    ap.add_argument("--horizon", type=int, default=HORIZON, help="branch length in steps")
     ap.add_argument("--patience", type=int, default=6, help="early-stopping patience; large = fixed steps")
     ap.add_argument("--out", default="experiments/lbf_smoke.json")
     args = ap.parse_args()
     env = lbfenv.LevelBasedForaging(
         generator=generator.RandomGenerator(grid_size=GRID, fov=GRID, num_agents=N, num_food=FOOD, force_coop=True),
         time_limit=50)
-    branch = make_branch_fn(env.step, scripted_policy, jnp.zeros(N, jnp.int32), horizon=HORIZON, gamma=0.99,
+    branch = make_branch_fn(env.step, scripted_policy, jnp.zeros(N, jnp.int32), horizon=args.horizon, gamma=0.99,
                             window=args.window)
     vbranch = jax.jit(jax.vmap(branch))
     one_hot = lambda a: jax.nn.one_hot(a, NUM_ACTIONS).reshape(a.shape[0], -1)
@@ -109,7 +110,7 @@ def main():
         mask[kind == 0], mask[kind == 1] = 0.0, 1.0
         g = vbranch(s_tr, a_tr, jnp.asarray(mask), jax.random.split(k_br, len(tr)))
         h_tr = jax.vmap(features)(s_tr)
-        steps_train = len(tr) * HORIZON
+        steps_train = len(tr) * args.horizon
         data = (np.asarray(h_tr), np.asarray(one_hot(a_tr)), mask, np.asarray(g, np.float32), kind.astype(np.int32))
         model = KernelCritic(N, h_tr.shape[1], key=key, a_dim=N * NUM_ACTIONS)
         fit(model, KernelCritic.loss, data, steps=args.train_steps, batch=args.batch, eval_every=500,

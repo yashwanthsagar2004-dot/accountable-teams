@@ -44,6 +44,7 @@ def main():
     ap.add_argument("--eval", type=int, default=60)
     ap.add_argument("--reps", type=int, default=400)
     ap.add_argument("--mc-perms", type=int, default=4, help="permutations per agent; 2 branches each")
+    ap.add_argument("--diagonal", action="store_true", help="only settings with window == horizon")
     ap.add_argument("--seed", type=int, default=0)
     ap.add_argument("--out", default="experiments/snr_gate.json")
     args = ap.parse_args()
@@ -61,7 +62,7 @@ def main():
     masks16 = jnp.asarray(np.repeat(all_masks(N), args.reps, axis=0))
     rows = []
     for window, horizon in itertools.product(map(int, args.windows.split(",")), map(int, args.horizons.split(","))):
-        if window > horizon:
+        if window > horizon or (args.diagonal and window != horizon):
             continue
         t0 = time.time()
         branch = make_branch_fn(env.step, scripted_policy, jnp.zeros(N, jnp.int32), horizon=horizon, gamma=0.99,
