@@ -164,11 +164,33 @@ def _rware():
         return jnp.where(fwd & (occupied | claimed), 0, act).astype(jnp.int32)
 
     def features(state):
-        ag, sh = state.agents, state.shelves
+        """Per agent: position, heading, carrying, whether the carried shelf is requested, distance to its current
+        target, at-target flag, and a 5x5 patch of shelves, requested shelves and other agents around it.
+        Team-level: the requested shelves' positions and the step count."""
+        ag, sh, grid = state.agents, state.shelves, state.grid
+        px, py = ag.position.x, ag.position.y
+        carry = ag.is_carrying.astype(bool)
+        shelf_here = grid[SH, px, py]
+        carried_req = carry & (sh.is_requested[jnp.maximum(shelf_here - 1, 0)] == 1) & (shelf_here > 0)
         req = sh.is_requested == 1
-        order = jnp.argsort(~req)[:4]                                      # the 4 requested shelves
-        return jnp.concatenate([ag.position.x / X, ag.position.y / Y, jax.nn.one_hot(ag.direction, 4).reshape(-1),
-                                ag.is_carrying.astype(jnp.float32), sh.position.x[order] / X, sh.position.y[order] / Y,
+        fx, fy = nearest(px, py, sh.position.x, sh.position.y, req)
+        tgx, tgy = nearest(px, py, goals_x, goals_y, jnp.ones_like(goals_x, bool))
+        free = (highways == 0) & (grid[SH] == 0)
+        ex, ey = nearest(px, py, gx.reshape(-1), gy.reshape(-1), free.reshape(-1))
+        tx = jnp.where(~carry, fx, jnp.where(carried_req, tgx, ex))
+        ty = jnp.where(~carry, fy, jnp.where(carried_req, tgy, ey))
+        dist = (jnp.abs(tx - px) + jnp.abs(ty - py)) / (X + Y)
+        req_map = jnp.zeros((X, Y)).at[sh.position.x, sh.position.y].max(req.astype(jnp.float32))
+        layers = jnp.stack([(grid[SH] > 0).astype(jnp.float32), req_map, (grid[AG] > 0).astype(jnp.float32),
+                            highways.astype(jnp.float32)])
+        padded = jnp.pad(layers, ((0, 0), (2, 2), (2, 2)))
+        patch = jax.vmap(lambda x, y: jax.lax.dynamic_slice(padded, (0, x, y), (4, 5, 5)).reshape(-1))(px, py)
+        order = jnp.argsort(~req)[:4]
+        per_agent = jnp.concatenate([px[:, None] / X, py[:, None] / Y, jax.nn.one_hot(ag.direction, 4),
+                                     carry[:, None].astype(jnp.float32), carried_req[:, None].astype(jnp.float32),
+                                     dist[:, None], ((tx == px) & (ty == py))[:, None].astype(jnp.float32),
+                                     (tx - px)[:, None] / X, (ty - py)[:, None] / Y, patch], axis=1)
+        return jnp.concatenate([per_agent.reshape(-1), sh.position.x[order] / X, sh.position.y[order] / Y,
                                 state.step_count[None] / 100.0])
 
     live = lambda states: np.ones(np.asarray(states.step_count).shape[0], bool)

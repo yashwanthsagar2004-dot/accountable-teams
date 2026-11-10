@@ -36,6 +36,7 @@ def main():
     ap.add_argument("--seeds", type=int, default=3)
     ap.add_argument("--train-steps", type=int, default=8000)
     ap.add_argument("--batch", type=int, default=512)
+    ap.add_argument("--hidden", type=int, default=128, help="critic width")
     ap.add_argument("--window", type=int, default=1, help="steps for which absent agents take the reference")
     ap.add_argument("--horizon", type=int, default=None, help="branch length in steps (default: the env's)")
     ap.add_argument("--patience", type=int, default=6, help="early-stopping patience; large = fixed steps")
@@ -69,7 +70,7 @@ def main():
         h_tr = jax.vmap(features)(s_tr)
         steps_train = len(tr) * args.horizon
         data = (np.asarray(h_tr), np.asarray(one_hot(a_tr)), mask, np.asarray(g, np.float32), kind.astype(np.int32))
-        model = KernelCritic(N, h_tr.shape[1], key=key, a_dim=N * NUM_ACTIONS)
+        model = KernelCritic(N, h_tr.shape[1], hidden=args.hidden, key=key, a_dim=N * NUM_ACTIONS)
         fit(model, KernelCritic.loss, data, steps=args.train_steps, batch=args.batch, eval_every=500,
             patience=args.patience, seed=seed, n=N)
         # paired design at the same number of branches: half the decisions, two branches each (S and the
@@ -82,7 +83,7 @@ def main():
         keys_p = jax.random.split(jax.random.fold_in(k_br, 1), half)
         d = vbranch(s_p, a_p, jnp.asarray(mask_p), keys_p) - vbranch(s_p, a_p, jnp.zeros((half, N)), keys_p)
         data_p = (np.asarray(h_p), np.asarray(one_hot(a_p)), mask_p, np.asarray(d, np.float32), full)
-        paired_model = DeltaKernelCritic(N, h_tr.shape[1], key=key, a_dim=N * NUM_ACTIONS)
+        paired_model = DeltaKernelCritic(N, h_tr.shape[1], hidden=args.hidden, key=key, a_dim=N * NUM_ACTIONS)
         fit(paired_model, DeltaKernelCritic.loss, data_p, steps=args.train_steps, batch=args.batch, eval_every=500,
             patience=args.patience, seed=seed, n=N)
         # ground truth on held-out decisions: all coalitions, reps branches each
