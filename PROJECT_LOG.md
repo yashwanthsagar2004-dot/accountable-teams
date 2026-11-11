@@ -46,6 +46,12 @@ Neither side can prove an idea is new. Claims are worded "searches up to <date> 
 
 ## Decisions
 
+- 2026-11-11 — After the AgenTracer and Aegis ICLR 2026 reviews: ground-truth validity was the main objection in 8 of
+  11 reviews across the three closest papers. The LLM testbed adds natural failures from weaker models, labelled by
+  measured responsibility (Aegis declined these as unlabelled). It also reports replay fidelity per task and counts
+  where the earliest-decisive-error convention disagrees with measured responsibility. A repair experiment compares
+  the top-responsibility agent with the judge's choice and a random agent. Seeds, intervals, sweeps (including β) and
+  released records are required from the first submission.
 - 2026-11-11 — Positioning after reading the closest work (CAR, C3, Credit Without Ground Truth, Who&When and its ICML
   2025 reviews): executed replay plus Shapley is not new. Lead with T5 (logs cannot identify responsibility), T1b/T4
   (on-policy credit bias and the fairness gap) and T6/T7 (audit-aware agents); present the critic as a tool measured
