@@ -21,6 +21,7 @@ from accteams.shapley import sample_kernel_coalitions
 
 sys.path.insert(0, "experiments")
 from envs import collect, get_env
+from accteams.provenance import stamp
 
 
 def take(tree, idx):
@@ -131,7 +132,7 @@ def main():
                    seconds=round(time.time() - t0, 1))
         rows.append(row)
         print(row, flush=True)
-    json.dump(dict(args=vars(args), runs=rows), open(args.out, "w"), indent=1)
+    json.dump(dict(args=vars(args), runs=rows, provenance=stamp(vars(args))), open(args.out, "w"), indent=1)
     for k in ("critic_rel_err", "paired_critic_rel_err", "mc32_rel_err", "critic_rel_err_top_quarter",
               "paired_critic_rel_err_top_quarter", "mc32_rel_err_top_quarter", "paired_top_agent_match",
               "paired_difference_sd",
