@@ -46,6 +46,11 @@ Neither side can prove an idea is new. Claims are worded "searches up to <date> 
 
 ## Decisions
 
+- 2026-11-11 — Scale-up support: critic_budget --gt sampled (permutation-sampled ground truth with standard errors,
+  P permutations x (n+1) prefixes x reps branches; default for n > 6), a direct audit that needs no 2^n table, and
+  --size small|medium|large maps. Check against exact ground truth at n = 4 (LBF, 12 decisions, 64 permutations x 16
+  reps vs 400 reps per coalition): z = (sampled - exact)/se over 48 values had mean -0.18, sd 1.01, 2.1% beyond 2.58
+  (experiments/check_sampled_gt.py). Enables the 8- and 16-agent runs of the version-2 plan.
 - 2026-11-11 — Credit bug found and fixed. The first GPU credit comparison (LBF, 4 agents, 2,000 updates, 3 seeds)
   gave team 0.0072 reward/step but resp 0.0 on every seed and dr near 0. Cause: c_i was standardised on its own,
   so critic noise had the same weight as GAE on sparse rewards; the policy collapsed onto one action. Local check
