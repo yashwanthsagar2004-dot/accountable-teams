@@ -1,0 +1,93 @@
+{
+ "args": {
+  "env": "lbf",
+  "windows": "5,10,15,20,25",
+  "horizons": "5,10,15,20,25",
+  "eval": 60,
+  "reps": 400,
+  "mc_perms": 4,
+  "diagonal": true,
+  "seed": 0,
+  "out": "experiments/lbf_gate_2026-11-11.json"
+ },
+ "rows": [
+  {
+   "window": 5,
+   "horizon": 5,
+   "signal": 0.01623511582899179,
+   "ground_truth_se_rel": 0.0812896826682598,
+   "mc32_rel_err": 0.9567451520217392,
+   "return_sd": 0.07065767794847488,
+   "paired_difference_sd": 0.07065767794847488,
+   "snr": 0.2297714203596115,
+   "seconds": 5.5,
+   "passes_1_and_2": true
+  },
+  {
+   "window": 10,
+   "horizon": 10,
+   "signal": 0.031173006565384433,
+   "ground_truth_se_rel": 0.0819662324999935,
+   "mc32_rel_err": 0.9315117034583738,
+   "return_sd": 0.12154781073331833,
+   "paired_difference_sd": 0.12154781073331833,
+   "snr": 0.2564670145511627,
+   "seconds": 6.1,
+   "passes_1_and_2": true
+  },
+  {
+   "window": 15,
+   "horizon": 15,
+   "signal": 0.0434810977007146,
+   "ground_truth_se_rel": 0.07574189044636322,
+   "mc32_rel_err": 0.9703405815532269,
+   "return_sd": 0.14870674908161163,
+   "paired_difference_sd": 0.14870674908161163,
+   "snr": 0.2923949062824249,
+   "seconds": 5.3,
+   "passes_1_and_2": true
+  },
+  {
+   "window": 20,
+   "horizon": 20,
+   "signal": 0.05316144498679528,
+   "ground_truth_se_rel": 0.06765364226345179,
+   "mc32_rel_err": 0.8338700721769602,
+   "return_sd": 0.16383463144302368,
+   "paired_difference_sd": 0.16383463144302368,
+   "snr": 0.32448235154151917,
+   "seconds": 6.5,
+   "passes_1_and_2": true
+  },
+  {
+   "window": 25,
+   "horizon": 25,
+   "signal": 0.05950822600797336,
+   "ground_truth_se_rel": 0.065598479001195,
+   "mc32_rel_err": 0.9060495006492748,
+   "return_sd": 0.16974101960659027,
+   "paired_difference_sd": 0.16974101960659027,
+   "snr": 0.350582480430603,
+   "seconds": 5.4,
+   "passes_1_and_2": true
+  }
+ ],
+ "provenance": {
+  "commit": "4c3326e",
+  "dirty": false,
+  "command": "experiments/snr_gate.py --diagonal --windows 5,10,15,20,25 --horizons 5,10,15,20,25 --eval 60 --reps 400 --out experiments/lbf_gate_2026-11-11.json",
+  "config_hash": "6377f91f6d0d",
+  "python": "3.13.16",
+  "platform": "Linux-6.6.159+-x86_64-with-glibc2.39",
+  "device": "cuda:0",
+  "versions": {
+   "numpy": "2.4.6",
+   "jax": "0.12.0.1",
+   "optax": "0.2.8",
+   "jumanji": "1.1.2"
+  },
+  "seconds": 48.7,
+  "finished": "2026-11-11T03:19:48Z",
+  "preregistered": false
+ }
+}

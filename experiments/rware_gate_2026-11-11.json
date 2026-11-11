@@ -1,0 +1,93 @@
+{
+ "args": {
+  "env": "rware",
+  "windows": "5,10,15,20,25",
+  "horizons": "5,10,15,20,25",
+  "eval": 60,
+  "reps": 400,
+  "mc_perms": 4,
+  "diagonal": true,
+  "seed": 0,
+  "out": "experiments/rware_gate_2026-11-11.json"
+ },
+ "rows": [
+  {
+   "window": 5,
+   "horizon": 5,
+   "signal": 0.04420248504417638,
+   "ground_truth_se_rel": 0.029755240894269785,
+   "mc32_rel_err": 0.22961892719486596,
+   "return_sd": 0.06666035950183868,
+   "paired_difference_sd": 0.06666035950183868,
+   "snr": 0.663100004196167,
+   "seconds": 16.3,
+   "passes_1_and_2": true
+  },
+  {
+   "window": 10,
+   "horizon": 10,
+   "signal": 0.09547420080893466,
+   "ground_truth_se_rel": 0.03761409879365809,
+   "mc32_rel_err": 0.24382696554950786,
+   "return_sd": 0.1819273829460144,
+   "paired_difference_sd": 0.1819273829460144,
+   "snr": 0.5247929096221924,
+   "seconds": 25.2,
+   "passes_1_and_2": true
+  },
+  {
+   "window": 15,
+   "horizon": 15,
+   "signal": 0.1552698366088508,
+   "ground_truth_se_rel": 0.04570552360011947,
+   "mc32_rel_err": 0.3353788468796977,
+   "return_sd": 0.28508850932121277,
+   "paired_difference_sd": 0.28508850932121277,
+   "snr": 0.5446372628211975,
+   "seconds": 35.4,
+   "passes_1_and_2": true
+  },
+  {
+   "window": 20,
+   "horizon": 20,
+   "signal": 0.21512450770565514,
+   "ground_truth_se_rel": 0.04434461220013407,
+   "mc32_rel_err": 0.33621705020484804,
+   "return_sd": 0.34898117184638977,
+   "paired_difference_sd": 0.34898117184638977,
+   "snr": 0.6164358258247375,
+   "seconds": 43.4,
+   "passes_1_and_2": true
+  },
+  {
+   "window": 25,
+   "horizon": 25,
+   "signal": 0.27321881079503024,
+   "ground_truth_se_rel": 0.03881371809404606,
+   "mc32_rel_err": 0.36353645402493184,
+   "return_sd": 0.3895858824253082,
+   "paired_difference_sd": 0.3895858824253082,
+   "snr": 0.7013057470321655,
+   "seconds": 54.1,
+   "passes_1_and_2": true
+  }
+ ],
+ "provenance": {
+  "commit": "4c3326e",
+  "dirty": false,
+  "command": "experiments/snr_gate.py --env rware --diagonal --windows 5,10,15,20,25 --horizons 5,10,15,20,25 --eval 60 --reps 400 --out experiments/rware_gate_2026-11-11.json",
+  "config_hash": "3fb21ac5f4da",
+  "python": "3.13.16",
+  "platform": "Linux-6.6.159+-x86_64-with-glibc2.39",
+  "device": "cuda:0",
+  "versions": {
+   "numpy": "2.4.6",
+   "jax": "0.12.0.1",
+   "optax": "0.2.8",
+   "jumanji": "1.1.2"
+  },
+  "seconds": 195.0,
+  "finished": "2026-11-11T03:26:29Z",
+  "preregistered": false
+ }
+}

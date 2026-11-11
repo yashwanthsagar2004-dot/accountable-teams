@@ -328,7 +328,7 @@ export default function App() {
             <li>All teams so far are planted or scripted. Nothing has been tested on learned (MAPPO) teams or on the LLM-team testbed.</li>
             <li>The amortised critic loses to plain Monte Carlo on RobotWarehouse. Where it is worth using is an open question, not a result.</li>
             <li>The Phase 2 claims about audits (H6) have no experiment yet. The saboteur scenario above is the theorem’s own two-agent example.</li>
-            <li>Two tier-2 records were transcribed by hand from Colab output; they need one machine-written re-run.</li>
+            <li>The 10 Nov tier-2 records were copied by hand. A re-run on 11 Nov (commit 4c3326e, Tesla T4, records written by the scripts) reproduced all 70 copied values exactly.</li>
           </ul>
         </div>
       </section>
