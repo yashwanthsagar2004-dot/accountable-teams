@@ -46,6 +46,11 @@ Neither side can prove an idea is new. Claims are worded "searches up to <date> 
 
 ## Decisions
 
+- 2026-11-11 — Colab runtime lost again (disconnected for inactivity or maximum duration, ~13:15-13:45 UTC), then the
+  free-tier GPU limit was reached; Yash chose to wait for the quota. Finished credit-v2 seeds survive on Drive. The
+  LBF critic run lost its first seed after more than 80 minutes, so critic_budget now caches every expensive stage
+  of a seed (branch returns, flat critic, set ensemble, ground truth in chunks of 25 decisions) under <out>.cache/;
+  a rerun resumes inside the seed and gives identical numbers (checked on CPU). 8-agent sampled ground truth runs.
 - 2026-11-11 — Scale-up support: critic_budget --gt sampled (permutation-sampled ground truth with standard errors,
   P permutations x (n+1) prefixes x reps branches; default for n > 6), a direct audit that needs no 2^n table, and
   --size small|medium|large maps. Check against exact ground truth at n = 4 (LBF, 12 decisions, 64 permutations x 16

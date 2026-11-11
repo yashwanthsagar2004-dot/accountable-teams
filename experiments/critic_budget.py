@@ -15,7 +15,7 @@ Audit branches come from a separate table with independent keys, so audits and g
 Run from the repository root, e.g.
   python experiments/critic_budget.py --env rware --agents 4 --window 10 --horizon 10 --seeds 3
 """
-import argparse, json, os, sys, time
+import argparse, json, os, pickle, sys, time
 
 import jax
 import jax.numpy as jnp
@@ -39,6 +39,26 @@ def take(tree, idx):
 def spearman(x, y):
     rx, ry = np.argsort(np.argsort(x)), np.argsort(np.argsort(y))
     return float(np.corrcoef(rx, ry)[0, 1])
+
+
+class StageCache:
+    """Pickled results of the expensive stages of one seed, so a lost runtime resumes inside a seed."""
+
+    def __init__(self, out, seed):
+        self.dir = f"{out}.cache/seed{seed}"
+        os.makedirs(self.dir, exist_ok=True)
+
+    def get(self, name, make):
+        path = os.path.join(self.dir, name + ".pkl")
+        if os.path.exists(path):
+            with open(path, "rb") as f:
+                print(f"  cache hit: {path}", flush=True)
+                return pickle.load(f)
+        val = make()
+        with open(path + ".tmp", "wb") as f:
+            pickle.dump(jax.device_get(val), f)
+        os.replace(path + ".tmp", path)
+        return val
 
 
 def sampled_shapley(run_masks, s, a, n, perms, reps, key, rng):
@@ -125,6 +145,7 @@ def main():
         if any(r["seed"] == seed for r in rows):
             continue
         t0 = time.time()
+        cache = StageCache(args.out, seed)
         rng = np.random.default_rng(seed)
         key = jax.random.PRNGKey(seed)
         k_col, k_act, k_br, k_eval, k_gt, k_au = jax.random.split(key, 6)
@@ -140,10 +161,10 @@ def main():
         kind = rng.choice(3, size=len(tr), p=[0.1, 0.1, 0.8]).astype(np.int32)
         mask = sample_kernel_coalitions(N, len(tr), rng, paired=True)
         mask[kind == 0], mask[kind == 1] = 0.0, 1.0
-        g = np.asarray(jnp.concatenate([vbranch(*take((s_tr, a_tr), np.arange(i, min(i + 50000, len(tr)))),
+        g = cache.get("branches", lambda: np.asarray(jnp.concatenate([vbranch(*take((s_tr, a_tr), np.arange(i, min(i + 50000, len(tr)))),
                                                 jnp.asarray(mask[i:i + 50000]),
                                                 jax.random.split(jax.random.fold_in(k_br, i), min(50000, len(tr) - i)))
-                                        for i in range(0, len(tr), 50000)]), np.float32)
+                                        for i in range(0, len(tr), 50000)]), np.float32))
         feats = lambda s: (np.asarray(jax.vmap(spec.agent_features)(s), np.float32),
                            np.asarray(jax.vmap(spec.global_features)(s), np.float32))
         x_tr, gl_tr = feats(s_tr)
@@ -153,11 +174,14 @@ def main():
         flat = None
         if not args.skip_flat:
             h_tr = np.asarray(jax.vmap(spec.features)(s_tr), np.float32)
-            flat = KernelCritic(N, h_tr.shape[1], hidden=256, key=key, a_dim=N * A)
-            fit(flat, KernelCritic.loss, (h_tr, oh_tr.reshape(len(tr), -1), mask, g, kind), seed=seed, n=N, **fit_kw)
-        ens = fit_ensemble(SetKernelCritic, (x_tr, oh_tr, gl_tr, mask, g, kind), members=args.members,
-                           d_agent=x_tr.shape[2], d_global=gl_tr.shape[1], a_dim=A, width=args.width,
-                           layers=args.layers, heads=4, seed=seed, **fit_kw)
+            def make_flat():
+                m = KernelCritic(N, h_tr.shape[1], hidden=256, key=key, a_dim=N * A)
+                fit(m, KernelCritic.loss, (h_tr, oh_tr.reshape(len(tr), -1), mask, g, kind), seed=seed, n=N, **fit_kw)
+                return m
+            flat = cache.get("flat_critic", make_flat)
+        ens = cache.get("set_ensemble", lambda: fit_ensemble(
+            SetKernelCritic, (x_tr, oh_tr, gl_tr, mask, g, kind), members=args.members, d_agent=x_tr.shape[2],
+            d_global=gl_tr.shape[1], a_dim=A, width=args.width, layers=args.layers, heads=4, seed=seed, **fit_kw))
         t_train = time.time() - t0
 
         # ---- ground truth and an independent audit table on held-out decisions
@@ -170,8 +194,13 @@ def main():
         _table_j = jax.jit(table, static_argnums=3)
         table_j = lambda *z: np.asarray(_table_j(*z))
         run_masks = jax.jit(jax.vmap(branch, in_axes=(None, None, 0, 0)))
-        phi, se, audit_tabs, audit_direct = [], [], [], {K: ([], []) for K in budgets}
-        for j in range(len(ev)):
+        def gt_chunk(lo, hi):
+            phi, se, audit_tabs, audit_direct = [], [], [], {K: ([], []) for K in budgets}
+            for j in range(lo, hi):
+                gt_one(j, phi, se, audit_tabs, audit_direct)
+            return phi, se, audit_tabs, audit_direct
+
+        def gt_one(j, phi, se, audit_tabs, audit_direct):
             s_j, a_j = take(s_ev, j), a_ev[j]
             if gt_mode == "exact":
                 vals = table_j(s_j, a_j, jax.random.fold_in(k_gt, j), args.reps)
@@ -188,6 +217,13 @@ def main():
                                                       jax.random.fold_in(jax.random.fold_in(k_au, j), K),
                                                       np.random.default_rng([seed, j, K]))
                     audit_direct[K][0].append(e_), audit_direct[K][1].append(v_)
+
+        phi, se, audit_tabs, audit_direct = [], [], [], {K: ([], []) for K in budgets}
+        for lo in range(0, len(ev), 25):
+            c = cache.get(f"gt_{lo:05d}", lambda: gt_chunk(lo, min(lo + 25, len(ev))))
+            phi += list(c[0]); se += list(c[1]); audit_tabs += list(c[2])
+            for K in budgets:
+                audit_direct[K][0].extend(c[3][K][0]); audit_direct[K][1].extend(c[3][K][1])
         phi, se = np.array(phi), np.array(se)
 
         x_ev, gl_ev = feats(s_ev)
