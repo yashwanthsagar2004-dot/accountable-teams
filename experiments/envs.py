@@ -40,12 +40,14 @@ class EnvSpec:
     reference_action: jnp.ndarray
     horizon: int
     collect_steps: int
+    agent_features: Callable = None       # state -> (n, d_agent): one token per agent, for the set critic
+    global_features: Callable = None      # state -> (d_global,): team-level context
 
 
 # ---------------------------------------------------------------- Level-Based Foraging
-def _lbf():
+def _lbf(n=4, food_n=3, grid=8):
     from jumanji.environments.routing.lbf import env as lbfenv, generator
-    n, food_n, grid, A = 4, 3, 8, 6
+    A = 6
     env = lbfenv.LevelBasedForaging(
         generator=generator.RandomGenerator(grid_size=grid, fov=grid, num_agents=n, num_food=food_n, force_coop=True),
         time_limit=50)
@@ -71,17 +73,29 @@ def _lbf():
         return jnp.concatenate([(a.position / grid).reshape(-1), a.level / 5.0, (f.position / grid).reshape(-1),
                                 f.level / 5.0, f.eaten.astype(jnp.float32), state.step_count[None] / 50.0])
 
+    def agent_features(state):
+        a, f = state.agents, state.food_items
+        rel = (f.position[None, :, :] - a.position[:, None, :]).reshape(n, -1) / grid
+        return jnp.concatenate([a.position / grid, a.level[:, None] / 5.0, rel,
+                                jnp.broadcast_to(f.eaten[None, :].astype(jnp.float32), (n, food_n))], axis=1)
+
+    def global_features(state):
+        f = state.food_items
+        return jnp.concatenate([(f.position / grid).reshape(-1), f.level / 5.0, f.eaten.astype(jnp.float32),
+                                state.step_count[None] / 50.0, jnp.array([n / 16.0])])
+
     live = lambda states: ~np.asarray(states.food_items.eaten).all(1)
-    return EnvSpec("lbf", env.step, env.reset, policy, features, live, n, A, jnp.zeros(n, jnp.int32), 15, 35)
+    return EnvSpec("lbf", env.step, env.reset, policy, features, live, n, A, jnp.zeros(n, jnp.int32), 15, 35,
+                   agent_features, global_features)
 
 
 # ---------------------------------------------------------------- RobotWarehouse
-def _rware():
+def _rware(n=4, shelf_rows=1, shelf_columns=3, requests=4):
     from jumanji.environments.routing.robot_warehouse import env as rw, generator
-    n, A = 4, 5
+    A = 5
     env = rw.RobotWarehouse(generator=generator.RandomGenerator(
-        shelf_rows=1, shelf_columns=3, column_height=8, num_agents=n, sensor_range=1, request_queue_size=4),
-        time_limit=100)
+        shelf_rows=shelf_rows, shelf_columns=shelf_columns, column_height=8, num_agents=n, sensor_range=1,
+        request_queue_size=requests), time_limit=100)
     SH, AG = 0, 1                                             # grid layers: shelves, agents (checked 10 Nov 2026)
     highways = jnp.asarray(env.highways)
     goals_x, goals_y = jnp.asarray(env.goals)[:, 1], jnp.asarray(env.goals)[:, 0]   # goals are stored as (y, x)
@@ -185,7 +199,7 @@ def _rware():
                             highways.astype(jnp.float32)])
         padded = jnp.pad(layers, ((0, 0), (2, 2), (2, 2)))
         patch = jax.vmap(lambda x, y: jax.lax.dynamic_slice(padded, (0, x, y), (4, 5, 5)).reshape(-1))(px, py)
-        order = jnp.argsort(~req)[:4]
+        order = jnp.argsort(~req)[:requests]
         per_agent = jnp.concatenate([px[:, None] / X, py[:, None] / Y, jax.nn.one_hot(ag.direction, 4),
                                      carry[:, None].astype(jnp.float32), carried_req[:, None].astype(jnp.float32),
                                      dist[:, None], ((tx == px) & (ty == py))[:, None].astype(jnp.float32),
@@ -193,12 +207,22 @@ def _rware():
         return jnp.concatenate([per_agent.reshape(-1), sh.position.x[order] / X, sh.position.y[order] / Y,
                                 state.step_count[None] / 100.0])
 
+    def split_features(state):
+        flat = features(state)
+        d_agent = (flat.shape[0] - 2 * requests - 1) // n
+        return flat[: n * d_agent].reshape(n, d_agent), jnp.concatenate([flat[n * d_agent:], jnp.array([n / 16.0])])
+
     live = lambda states: np.ones(np.asarray(states.step_count).shape[0], bool)
-    return EnvSpec("rware", step, reset, policy, features, live, n, A, jnp.zeros(n, jnp.int32), 15, 90)
+    return EnvSpec("rware", step, reset, policy, features, live, n, A, jnp.zeros(n, jnp.int32), 15, 90,
+                   lambda s: split_features(s)[0], lambda s: split_features(s)[1])
 
 
-def get_env(name: str) -> EnvSpec:
-    return {"lbf": _lbf, "rware": _rware}[name]()
+def get_env(name: str, n: int = 4) -> EnvSpec:
+    """name: lbf or rware. n: team size. Larger teams get proportionally more food (LBF) or shelves and requests
+    (RobotWarehouse) so that the task stays busy."""
+    if name == "lbf":
+        return _lbf(n=n, food_n=max(3, (3 * n) // 4), grid=8 if n <= 4 else 10)
+    return _rware(n=n, shelf_columns=3 if n <= 4 else 5, requests=4 if n <= 4 else n)
 
 
 def collect(spec: EnvSpec, key, num_envs):
