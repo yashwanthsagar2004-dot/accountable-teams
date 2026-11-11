@@ -41,6 +41,47 @@ def spearman(x, y):
     return float(np.corrcoef(rx, ry)[0, 1])
 
 
+def sampled_shapley(run_masks, s, a, n, perms, reps, key, rng):
+    """Permutation-sampled Shapley values of the interventional game for one decision.
+
+    Each permutation contributes the n marginal contributions along its n + 1 prefix coalitions; every prefix
+    value is the mean of `reps` executed branches, with common random numbers shared by the prefixes of a
+    permutation. Returns the estimate and its standard error over permutations (perms * (n + 1) * reps branches).
+    """
+    order = np.stack([rng.permutation(n) for _ in range(perms)])                      # (P, n)
+    masks = np.zeros((perms, n + 1, n), np.float32)
+    for k in range(1, n + 1):
+        masks[:, k] = masks[:, k - 1]
+        masks[np.arange(perms), k, order[:, k - 1]] = 1.0
+    keys = jax.random.split(key, perms * reps).reshape(perms, 1, reps, -1)
+    keys = jnp.broadcast_to(keys, (perms, n + 1, reps, keys.shape[-1])).reshape(-1, keys.shape[-1])
+    m = jnp.asarray(np.repeat(masks.reshape(-1, n), reps, axis=0))
+    vals = np.asarray(run_masks(s, a, m, keys)).reshape(perms, n + 1, reps).mean(2)
+    contrib = np.zeros((perms, n))
+    contrib[np.arange(perms)[:, None], order] = np.diff(vals, axis=1)
+    return contrib.mean(0), contrib.std(0, ddof=1) / np.sqrt(perms)
+
+
+def direct_permutation_audit(run_masks, s, a, n, perms_per_agent, key, rng):
+    """The audit estimator of setcritic.permutation_estimate, run directly on branches (no 2^n table):
+    for each agent, perms_per_agent pairs of independent branches with and without it; 2 * n * ppa branches."""
+    ppa = max(1, perms_per_agent)
+    pairs = []
+    for i in range(n):
+        for _ in range(ppa):
+            perm = rng.permutation(n)
+            before = perm[: int(np.where(perm == i)[0][0])]
+            m0 = np.zeros(n, np.float32)
+            m0[before] = 1.0
+            m1 = m0.copy()
+            m1[i] = 1.0
+            pairs += [m1, m0]
+    vals = np.asarray(run_masks(s, a, jnp.asarray(np.stack(pairs)), jax.random.split(key, len(pairs))))
+    d = (vals[0::2] - vals[1::2]).reshape(n, ppa)
+    var = d.var(1, ddof=1) / ppa if ppa > 1 else np.full(n, np.nan)
+    return d.mean(1), var
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--env", default="lbf", choices=["lbf", "rware"])
@@ -60,15 +101,21 @@ def main():
     ap.add_argument("--lr", type=float, default=1e-3)
     ap.add_argument("--calib-frac", type=float, default=0.3)
     ap.add_argument("--skip-flat", action="store_true")
+    ap.add_argument("--size", default=None, choices=[None, "small", "medium", "large"], help="map size variant")
+    ap.add_argument("--gt", default="auto", choices=["auto", "exact", "sampled"],
+                    help="ground truth: exact over 2^n coalitions, or permutation-sampled (auto: exact for n <= 6)")
+    ap.add_argument("--gt-perms", type=int, default=64, help="permutations per decision for sampled ground truth")
+    ap.add_argument("--gt-reps", type=int, default=16, help="branches per prefix coalition for sampled ground truth")
     ap.add_argument("--out", default="experiments/critic_budget.json")
     args = ap.parse_args()
 
-    spec = get_env(args.env, args.agents)
+    spec = get_env(args.env, args.agents, size=args.size)
     N, A = spec.n, spec.num_actions
+    gt_mode = args.gt if args.gt != "auto" else ("exact" if N <= 6 else "sampled")
     branch = make_branch_fn(spec.step, spec.policy, spec.reference_action, horizon=args.horizon, gamma=0.99,
                             window=args.window)
     vbranch = jax.jit(jax.vmap(branch))
-    masks_all = all_masks(N)
+    masks_all = all_masks(N) if gt_mode == "exact" else None
     budgets = [k for k in (8, 16, 32, 64, 128) if k >= 2 * N]
     partial = args.out + ".partial"
     rows = json.load(open(partial))["runs"] if os.path.exists(partial) else []  # resume after a lost runtime
@@ -122,14 +169,25 @@ def main():
             return jax.vmap(branch, in_axes=(None, None, 0, 0))(s, a, m, keys).reshape(2 ** N, reps)
         _table_j = jax.jit(table, static_argnums=3)
         table_j = lambda *z: np.asarray(_table_j(*z))
-        phi, se, audit_tabs = [], [], []
+        run_masks = jax.jit(jax.vmap(branch, in_axes=(None, None, 0, 0)))
+        phi, se, audit_tabs, audit_direct = [], [], [], {K: ([], []) for K in budgets}
         for j in range(len(ev)):
             s_j, a_j = take(s_ev, j), a_ev[j]
-            vals = table_j(s_j, a_j, jax.random.fold_in(k_gt, j), args.reps)
-            phi.append(shapley_from_mask_values(vals.mean(1), N))
-            parts = np.stack([shapley_from_mask_values(vals[:, b::10].mean(1), N) for b in range(10)])
-            se.append(parts.std(0, ddof=1) / np.sqrt(10))
-            audit_tabs.append(table_j(s_j, a_j, jax.random.fold_in(k_au, j), args.audit_reps))
+            if gt_mode == "exact":
+                vals = table_j(s_j, a_j, jax.random.fold_in(k_gt, j), args.reps)
+                phi.append(shapley_from_mask_values(vals.mean(1), N))
+                parts = np.stack([shapley_from_mask_values(vals[:, b::10].mean(1), N) for b in range(10)])
+                se.append(parts.std(0, ddof=1) / np.sqrt(10))
+                audit_tabs.append(table_j(s_j, a_j, jax.random.fold_in(k_au, j), args.audit_reps))
+            else:
+                p_, s_ = sampled_shapley(run_masks, s_j, a_j, N, args.gt_perms, args.gt_reps,
+                                         jax.random.fold_in(k_gt, j), np.random.default_rng([seed, j]))
+                phi.append(p_), se.append(s_)
+                for K in budgets:
+                    e_, v_ = direct_permutation_audit(run_masks, s_j, a_j, N, K // (2 * N),
+                                                      jax.random.fold_in(jax.random.fold_in(k_au, j), K),
+                                                      np.random.default_rng([seed, j, K]))
+                    audit_direct[K][0].append(e_), audit_direct[K][1].append(v_)
         phi, se = np.array(phi), np.array(se)
 
         x_ev, gl_ev = feats(s_ev)
@@ -142,8 +200,11 @@ def main():
         arng = np.random.default_rng(seed * 7 + 1)
         mc, mc_var = {}, {}
         for K in budgets:
-            out = [permutation_estimate(t, N, K // (2 * N), arng) for t in audit_tabs]
-            mc[K], mc_var[K] = np.array([o[0] for o in out]), np.array([o[1] for o in out])
+            if gt_mode == "exact":
+                out = [permutation_estimate(t, N, K // (2 * N), arng) for t in audit_tabs]
+                mc[K], mc_var[K] = np.array([o[0] for o in out]), np.array([o[1] for o in out])
+            else:
+                mc[K], mc_var[K] = np.array(audit_direct[K][0]), np.array(audit_direct[K][1])
             est[f"mc{K}"] = mc[K]
 
         ncal = int(args.calib_frac * len(ev))
@@ -167,7 +228,7 @@ def main():
         c = float(np.exp(np.mean(np.log([rel[f"mc{K}"] for K in budgets]) + 0.5 * np.log(ks))))
         equiv = {k: (c / rel[k]) ** 2 for k in ("set_ensemble", "set_single", "flat") if k in rel}
         err = np.abs(set_mean - phi).sum(1)
-        row = dict(seed=seed, agents=N, train_decisions=len(tr), train_branches=len(tr),
+        row = dict(seed=seed, agents=N, size=args.size, gt_mode=gt_mode, gt_se_mean=float(np.mean(se[test])), train_decisions=len(tr), train_branches=len(tr),
                    mean_abs_phi=float(np.mean(np.abs(phi))), ground_truth_se_rel=float(np.mean(se) / np.mean(np.abs(phi))),
                    rel_err=rel, rel_err_top_quarter=rel_top, audit_branches_per_decision=audit_cost,
                    mc_equivalent_branches=equiv, mc_constant=c, calib_scale=scale,

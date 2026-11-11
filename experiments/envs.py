@@ -217,12 +217,17 @@ def _rware(n=4, shelf_rows=1, shelf_columns=3, requests=4):
                    lambda s: split_features(s)[0], lambda s: split_features(s)[1])
 
 
-def get_env(name: str, n: int = 4) -> EnvSpec:
-    """name: lbf or rware. n: team size. Larger teams get proportionally more food (LBF) or shelves and requests
-    (RobotWarehouse) so that the task stays busy."""
+SIZES = {"lbf": {"small": 8, "medium": 10, "large": 12}, "rware": {"small": 3, "medium": 5, "large": 7}}
+
+
+def get_env(name: str, n: int = 4, size: str | None = None) -> EnvSpec:
+    """name: lbf or rware. n: team size. size: small | medium | large map (LBF grid 8/10/12, RobotWarehouse shelf
+    columns 3/5/7); None keeps the default, which grows with the team so the task stays busy."""
     if name == "lbf":
-        return _lbf(n=n, food_n=max(3, (3 * n) // 4), grid=8 if n <= 4 else 10)
-    return _rware(n=n, shelf_columns=3 if n <= 4 else 5, requests=4 if n <= 4 else n)
+        grid = SIZES["lbf"][size] if size else (8 if n <= 4 else 10)
+        return _lbf(n=n, food_n=max(3, (3 * n) // 4), grid=grid)
+    cols = SIZES["rware"][size] if size else (3 if n <= 4 else 5)
+    return _rware(n=n, shelf_columns=cols, requests=4 if n <= 4 else n)
 
 
 def collect(spec: EnvSpec, key, num_envs):
