@@ -22,6 +22,7 @@ sys.path.insert(0, "src")
 sys.path.insert(0, "experiments")
 from accteams.branching import all_masks, make_branch_fn, shapley_from_mask_values
 from envs import collect, get_env
+from accteams.provenance import stamp
 from lbf_smoke import take
 
 
@@ -101,7 +102,7 @@ def main():
         row["passes_1_and_2"] = bool(row["ground_truth_se_rel"] < 0.10 and row["mc32_rel_err"] < 1.0)
         rows.append(row)
         print(json.dumps(row), flush=True)
-    json.dump(dict(args=vars(args), rows=rows), open(args.out, "w"), indent=1)
+    json.dump(dict(args=vars(args), rows=rows, provenance=stamp(vars(args))), open(args.out, "w"), indent=1)
     print("\nwindow horizon  signal  gt_se  mc32  snr  pass")
     for r in rows:
         print(f"{r['window']:6d} {r['horizon']:7d}  {r['signal']:.4f}  {r['ground_truth_se_rel']:.2f}  "

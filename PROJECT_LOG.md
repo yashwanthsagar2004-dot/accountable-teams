@@ -46,6 +46,17 @@ Neither side can prove an idea is new. Claims are worded "searches up to <date> 
 
 ## Decisions
 
+- 2026-11-11 — Implementation standard: every claim is executable. `claims/claims.json` lists each theorem and
+  experimental claim with its status, check command and the record its numbers come from; `tools/verify_claims.py`
+  re-reads every number and runs the theory checks; CI fails if anything drifts. Failures stay in the ledger
+  (RobotWarehouse is listed as "fails").
+- 2026-11-11 — Interactive supplement: the Intervention Bench (https://claude.ai/artifact/4VZBTozMhc2ZgDDaX5dykb;
+  source in `web/`, built page in `docs/index.html`). One coalition lattice with per-agent switches shows the
+  counterfactual value, the Shapley readout, on-policy credit against responsibility, and the audit game.
+- 2026-11-11 — Confirmatory runs report interquartile mean, stratified bootstrap intervals, probability of
+  improvement and Holm-adjusted permutation tests (`accteams.stats`), following Agarwal et al. 2021.
+- 2026-11-11 — New records carry a `provenance` block (commit, command, configuration hash, device, versions,
+  seconds). The Colab notebook's last cell downloads all records as a zip; no more hand transcription.
 - 2026-11-10 — Responsibility heads are trained with kernel-sampled branches (FastSHAP's objective on executed
   returns). Pair terms are optional and only display interactions. Reason: T3 noise factors (144 against 5.7 at
   eight agents).
@@ -59,6 +70,12 @@ Neither side can prove an idea is new. Claims are worded "searches up to <date> 
   Shapley value of the interventional game.
 
 ## Results (all exploratory until the prereg-v1 tag)
+
+- 2026-11-11 — Reviewer kit checks (CPU): 14 tests pass, 1 skipped (needs jumanji); `verify_claims.py --checks`:
+  14 claims, 9 quoted numbers match their records, 4 check scripts pass. The bench's JavaScript core agrees with
+  the repo's Python on 12 random games (max difference 6e-15) and reproduces T3 by simulation at 4 agents:
+  kernel design 4.56 measured against 4.66 predicted, order-2 groups 16.5 against 16, permutation audit 4.60
+  against 4.50. No new training runs.
 
 - 2026-11-10 — RobotWarehouse (4 agents, scripted team, Colab T4). Gate conditions 1 and 2 pass at every
   window 5-25, far more easily than LBF (ground-truth se 0.03-0.05; 32-branch Monte Carlo 0.23-0.34).
@@ -107,6 +124,14 @@ Neither side can prove an idea is new. Claims are worded "searches up to <date> 
 4. Credit mode: which centring of the responsibility readout to use as MAPPO's advantage.
 5. Read in full before wording claims: Ding et al. 2008, Grabisch et al. 2000, Covert and Lee 2021, MCPG.
 6. S1.7 (self-test 0) is still open; due 30 Nov 2026.
+7. Re-run the LBF and RobotWarehouse gates once so their records are machine-written with provenance; then
+   remove the "transcribed" note from REPRODUCE.md.
+8. Choose the contribution type for Phase 1 when the NeurIPS 2027 call appears. In 2026 the types were General,
+   Theory, Use-Inspired, Concept and Feasibility, Negative Results; a Theory submission is judged on correctness
+   and its experiments need only illuminate the theory. Check that 2027 keeps this.
+9. Extend the identifying-strings list in `tools/make_supplement.py` before any double-blind submission.
+10. If `claims/claims.json` is not on the main branch on GitHub, the 11 Nov reviewer-kit patch (33 files, made
+    against commit 16d07aa) has not been pushed yet; a new session should not assume those files exist there.
 
 ## Keeping the full scope
 
