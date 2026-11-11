@@ -15,7 +15,7 @@ Audit branches come from a separate table with independent keys, so audits and g
 Run from the repository root, e.g.
   python experiments/critic_budget.py --env rware --agents 4 --window 10 --horizon 10 --seeds 3
 """
-import argparse, json, sys, time
+import argparse, json, os, sys, time
 
 import jax
 import jax.numpy as jnp
@@ -70,8 +70,13 @@ def main():
     vbranch = jax.jit(jax.vmap(branch))
     masks_all = all_masks(N)
     budgets = [k for k in (8, 16, 32, 64, 128) if k >= 2 * N]
-    rows = []
+    partial = args.out + ".partial"
+    rows = json.load(open(partial))["runs"] if os.path.exists(partial) else []  # resume after a lost runtime
+    if rows:
+        print(f"resuming from {partial}: seeds {[r['seed'] for r in rows]} done", flush=True)
     for seed in range(args.seeds):
+        if any(r["seed"] == seed for r in rows):
+            continue
         t0 = time.time()
         rng = np.random.default_rng(seed)
         key = jax.random.PRNGKey(seed)
@@ -170,6 +175,7 @@ def main():
                    top_agent_match=float(np.mean(set_mean[test].argmax(1) == ph.argmax(1))),
                    seconds_train=round(t_train, 1), seconds=round(time.time() - t0, 1))
         rows.append(row)
+        json.dump(dict(args=vars(args), runs=rows), open(partial, "w"))
         print(json.dumps({k: (round(v, 3) if isinstance(v, float) else v) for k, v in row.items() if k != "rel_err_top_quarter"}), flush=True)
 
     keys = rows[0]["rel_err"].keys()
@@ -178,6 +184,7 @@ def main():
     for k in sorted(keys, key=lambda k: rows[0]["audit_branches_per_decision"].get(k, 0)):
         print(f"  {k:14s} [{rows[0]['audit_branches_per_decision'].get(k, 0):6.1f}] {summary[k][0]:.3f} +/- {summary[k][1]:.3f}")
     json.dump(dict(args=vars(args), runs=rows, summary=summary, provenance=stamp(vars(args))), open(args.out, "w"), indent=1)
+    os.remove(partial)
 
 
 if __name__ == "__main__":
