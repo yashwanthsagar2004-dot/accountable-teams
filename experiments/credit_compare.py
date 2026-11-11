@@ -32,6 +32,8 @@ def main():
     ap.add_argument("--branch-frac", type=float, default=0.25)
     ap.add_argument("--hidden", type=int, default=64)
     ap.add_argument("--lr", type=float, default=5e-4)
+    ap.add_argument("--credit-warmup", type=int, default=100)
+    ap.add_argument("--credit-norm", default="joint", choices=["joint", "separate"])
     ap.add_argument("--out", default="experiments/credit_compare.json")
     args = ap.parse_args()
     spec = get_env(args.env, args.agents)
@@ -44,7 +46,7 @@ def main():
     done = {(r["credit"], r["seed"]) for r in runs}
     for credit in args.credits.split(","):
         cfg = Config(num_envs=args.num_envs, rollout=args.rollout, credit=credit, beta=args.beta, hidden=args.hidden,
-                     lr=args.lr, window=args.window, horizon=args.horizon, branch_frac=args.branch_frac)
+                     lr=args.lr, credit_warmup=args.credit_warmup, credit_norm=args.credit_norm, window=args.window, horizon=args.horizon, branch_frac=args.branch_frac)
         train, _ = make_trainer(spec, cfg)
         f = jax.jit(train, static_argnums=1)
         for seed in range(args.seeds):
@@ -59,6 +61,8 @@ def main():
                              branches=branches, branch_env_steps=branches * args.horizon,
                              env_steps=args.num_envs * args.rollout * args.updates, seconds=round(time.time() - t, 1)))
             curves[f"{credit}/{seed}"] = np.round(r, 6).tolist()
+            for name in ("entropy", "credit_to_gae_sd"):
+                curves[f"{name}:{credit}/{seed}"] = np.round(np.asarray(m[name], float), 4).tolist()
             print(json.dumps(runs[-1]), flush=True)
             json.dump(dict(args=vars(args), runs=runs, curves=curves), open(partial, "w"))
     summary = {}

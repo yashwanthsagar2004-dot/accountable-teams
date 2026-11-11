@@ -46,6 +46,13 @@ Neither side can prove an idea is new. Claims are worded "searches up to <date> 
 
 ## Decisions
 
+- 2026-11-11 — Credit bug found and fixed. The first GPU credit comparison (LBF, 4 agents, 2,000 updates, 3 seeds)
+  gave team 0.0072 reward/step but resp 0.0 on every seed and dr near 0. Cause: c_i was standardised on its own,
+  so critic noise had the same weight as GAE on sparse rewards; the policy collapsed onto one action. Local check
+  (16 envs, 600 updates, 2 seeds): old normalisation entropy 1.5 to 0.0, credit/GAE scale 35-780, reward 0;
+  joint normalisation (c_i in return units, normalised with GAE, 100-update warm-up) entropy stays near 1.0,
+  credit/GAE 0.05-0.15, reward 0.0035/0.0028 against team 0.0037/0.0032. Resp is no longer broken but not better
+  than team yet; the earlier GPU credit numbers are void. Entropy and credit scale are now logged per update.
 - 2026-11-11 — After the AgenTracer and Aegis ICLR 2026 reviews: ground-truth validity was the main objection in 8 of
   11 reviews across the three closest papers. The LLM testbed adds natural failures from weaker models, labelled by
   measured responsibility (Aegis declined these as unlabelled). It also reports replay fidelity per task and counts

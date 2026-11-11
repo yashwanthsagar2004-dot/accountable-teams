@@ -14,7 +14,10 @@ Credit modes (the advantage of agent i at step t):
   dr     A_i = GAE + beta * c_i with c_i from a centralised Q(s, a) critic trained on the team's own returns
          (COMA-style counterfactual baseline: Q(s, a) - E_{a'~pi_i} Q(s, a', a_-i)); the on-policy
          counterpart of `resp`, so the comparison isolates executed branches against on-policy fitting.
-c_i is standardised over the batch before beta is applied.
+Default (credit_norm="joint"): c_i stays in return units and A_i = (GAE + beta c_i) is normalised as one batch,
+so an uninformed critic contributes little. The legacy "separate" mode standardised c_i on its own, which gave
+critic noise the same weight as GAE; on sparse-reward LBF this collapsed resp and dr to zero reward (11 Nov 2026).
+beta is held at 0 for credit_warmup updates while the critic trains.
 """
 from __future__ import annotations
 
@@ -52,6 +55,8 @@ class Config:
     horizon: int = 10
     critic_steps: int = 50          # responsibility / Q critic SGD steps per update
     critic_width: int = 64
+    credit_warmup: int = 100        # updates with beta = 0 while the credit critic trains (resp, dr)
+    credit_norm: str = "joint"      # joint: c_i in return units, normalised together with GAE | separate: legacy
     seed: int = 0
 
 
@@ -162,7 +167,9 @@ def make_trainer(spec, cfg: Config):
             alt = jnp.stack([q(oh.at[:, i].set(jax.nn.one_hot(jnp.full(act.shape[0], b), A)))
                              for i in range(n) for b in range(A)], 1).reshape(-1, n, A)
         c = base - (pi * alt).sum(-1)
-        return (c - c.mean()) / (c.std() + 1e-8)
+        if cfg.credit_norm == "separate":
+            return (c - c.mean()) / (c.std() + 1e-8)
+        return c
 
     def train_resp(params, cstate, flat_states, act, key):
         """One executed branch for a random sample of decisions, then SGD on the kernel-critic loss."""
@@ -203,7 +210,7 @@ def make_trainer(spec, cfg: Config):
         return {**params, "q": qp}, cstate, losses[-1], targets.std()
 
     def update(carry, key):
-        params, ostate, cstate, states = carry
+        params, ostate, cstate, states, u = carry
         kr, kc, kp = jax.random.split(key, 3)
         states, (S, act, logp, val, rew, done) = rollout(params["actor"], params["value"], states, kr)
         last_val = jax.vmap(value_fn, (None, 0))(params["value"], states)
@@ -212,14 +219,22 @@ def make_trainer(spec, cfg: Config):
         flat = lambda z: z.reshape((T * E,) + z.shape[2:])
         fS = jax.tree_util.tree_map(flat, S)
         fact, flogp, fadv, fret = flat(act), flat(logp), flat(adv), flat(ret)
+        raw_adv = fadv
         fadv = (fadv - fadv.mean()) / (fadv.std() + 1e-8)
-        aux_loss, aux_sd = jnp.float32(0), jnp.float32(0)
+        aux_loss, aux_sd, c_ratio = jnp.float32(0), jnp.float32(0), jnp.float32(0)
         if cfg.credit == "resp":
             params, cstate, aux_loss, aux_sd = train_resp(params, cstate, fS, fact, kc)
         if cfg.credit == "dr":
             params, cstate, aux_loss, aux_sd = train_q(params, cstate, fS, fact, fret)
         if cfg.credit in ("resp", "dr"):
-            agent_adv = fadv[:, None] + cfg.beta * jax.lax.stop_gradient(credit_scores(params, fS, fact))
+            beta = jnp.where(u < cfg.credit_warmup, 0.0, cfg.beta)
+            c = jax.lax.stop_gradient(credit_scores(params, fS, fact))
+            if cfg.credit_norm == "separate":
+                agent_adv = fadv[:, None] + beta * c
+            else:
+                comb = raw_adv[:, None] + beta * c
+                agent_adv = (comb - comb.mean()) / (comb.std() + 1e-8)
+            c_ratio = beta * c.std() / (raw_adv.std() + 1e-8)
         else:
             agent_adv = jnp.broadcast_to(fadv[:, None], fact.shape)
 
@@ -249,10 +264,14 @@ def make_trainer(spec, cfg: Config):
             (p, o), ls = jax.lax.scan(mb_step, (p, o), perm)
             return (p, o), ls.mean()
         (params, ostate), losses = jax.lax.scan(epoch, (params, ostate), jax.random.split(kp, cfg.epochs))
+        logits_all = jax.vmap(logits_fn, (None, 0))(params["actor"], fS)
+        lsm_all = jax.nn.log_softmax(logits_all)
+        entropy = -(jnp.exp(lsm_all) * lsm_all).sum(-1).mean()
         ep_ret = rew.sum() / jnp.maximum(done.sum(), 1)                            # mean return of finished episodes
         metrics = dict(reward_per_step=rew.mean(), episodes=done.sum(), return_per_episode=ep_ret,
-                       loss=losses.mean(), aux_loss=aux_loss, aux_target_sd=aux_sd)
-        return (params, ostate, cstate, states), metrics
+                       loss=losses.mean(), aux_loss=aux_loss, aux_target_sd=aux_sd, entropy=entropy,
+                       credit_to_gae_sd=c_ratio)
+        return (params, ostate, cstate, states, u + 1), metrics
 
     def train(key, updates=None):
         params, states = init(key)
@@ -263,7 +282,7 @@ def make_trainer(spec, cfg: Config):
             cstate = copt.init(params["q"])
         else:
             cstate = jnp.zeros(())
-        (params, _, _, _), metrics = jax.lax.scan(update, (params, ostate, cstate, states),
+        (params, _, _, _, _), metrics = jax.lax.scan(update, (params, ostate, cstate, states, jnp.int32(0)),
                                                   jax.random.split(jax.random.fold_in(key, 1), updates or cfg.updates))
         return params, metrics
 
