@@ -16,17 +16,15 @@ CPU is enough for everything in the first table. Tier 2 was run on a Colab Tesla
 | Theorems T1-T7, numerical checks | `python tools/verify_claims.py --checks` | CPU, about 1 min | - |
 | Tier-1 pilot (H1-tier1, T4 gap) | `python experiments/pilot_sweep.py` | CPU, about 2 min | `experiments/pilot_sweep_2026-11-09.json` |
 | LBF, one-step and five-step windows | `python experiments/lbf_smoke.py --decisions 300000 --eval 100 --reps 200 --seeds 3 --train-steps 20000 --batch 2048 --patience 100000 --window W` | CPU about 3 min a seed; T4 60-90 s | `experiments/lbf_smoke_2026-11-10_window{1,5}.json` |
-| LBF gate, conditions 1-2 | `python experiments/snr_gate.py --diagonal --windows 5,10,15,20,25 --horizons 5,10,15,20,25 --eval 60 --reps 400` | T4 | `experiments/colab_gate_2026-11-10.json` |
-| LBF gate, condition 3 | the LBF command with `--window 20 --horizon 20` | T4 | same file |
-| RobotWarehouse gate | the two commands above with `--env rware`; condition 3 adds `--train-steps 40000 --batch 4096 --hidden 256 --window 10 --horizon 10` | T4 | `experiments/colab_rware_2026-11-10.json` |
+| LBF gate, conditions 1-2 | `python experiments/snr_gate.py --diagonal --windows 5,10,15,20,25 --horizons 5,10,15,20,25 --eval 60 --reps 400` | T4, 49 s | `experiments/lbf_gate_2026-11-11.json` |
+| LBF gate, condition 3 | the LBF command with `--seeds 3 --window 20 --horizon 20` | T4, 201 s | `experiments/lbf_w20_2026-11-11.json` |
+| RobotWarehouse gate | the two commands above with `--env rware`; condition 3 adds `--train-steps 40000 --batch 4096 --hidden 256 --window 10 --horizon 10` | T4, 195 s and 702 s | `experiments/rware_gate_2026-11-11.json`, `experiments/rware_w10_2026-11-11.json` |
 | Anonymised supplement | `python tools/make_supplement.py` | CPU | `supplement.zip` |
 
 ## What is not yet reproducible to this standard
 
-- The two `colab_*.json` records were transcribed by hand from cell output; the session files were lost. New runs
-  write a `provenance` block (commit, command, configuration hash, device, versions, seconds), and the last cell of
-  `notebooks/colab_runner.ipynb` downloads every record as a zip. Re-run both gates once so the records are
-  machine-written, then delete this bullet.
+- The 10 Nov `colab_*.json` records were copied by hand; they are kept for history. The 11 Nov re-runs (commit
+  `4c3326e`, Tesla T4, records written by the scripts with provenance) agree with them on all 70 copied values.
 - All results use 3 seeds and are exploratory. The confirmatory runs use 10 seeds and `accteams.stats`
   (interquartile mean, stratified bootstrap intervals, probability of improvement, Holm correction), after the
   `prereg-v1` tag.

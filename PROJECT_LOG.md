@@ -71,6 +71,12 @@ Neither side can prove an idea is new. Claims are worded "searches up to <date> 
 
 ## Results (all exploratory until the prereg-v1 tag)
 
+- 2026-11-11 — Gates re-run in Colab (Tesla T4, commit 4c3326e, 15 min of GPU time), records machine-written with
+  provenance: `experiments/{lbf,rware}_gate_2026-11-11.json`, `lbf_w20_2026-11-11.json`, `rware_w10_2026-11-11.json`.
+  All 70 values previously copied by hand agree to every reported digit; the runs are deterministic for a seed.
+  Conclusions unchanged: LBF passes condition 3 at window 20 (critic 0.654 against Monte Carlo 0.925); RobotWarehouse
+  fails it (0.576 against 0.268). The claims ledger now reads these records.
+
 - 2026-11-11 — Reviewer kit checks (CPU): 14 tests pass, 1 skipped (needs jumanji); `verify_claims.py --checks`:
   14 claims, 9 quoted numbers match their records, 4 check scripts pass. The bench's JavaScript core agrees with
   the repo's Python on 12 random games (max difference 6e-15) and reproduces T3 by simulation at 4 agents:
@@ -124,14 +130,10 @@ Neither side can prove an idea is new. Claims are worded "searches up to <date> 
 4. Credit mode: which centring of the responsibility readout to use as MAPPO's advantage.
 5. Read in full before wording claims: Ding et al. 2008, Grabisch et al. 2000, Covert and Lee 2021, MCPG.
 6. S1.7 (self-test 0) is still open; due 30 Nov 2026.
-7. Re-run the LBF and RobotWarehouse gates once so their records are machine-written with provenance; then
-   remove the "transcribed" note from REPRODUCE.md.
-8. Choose the contribution type for Phase 1 when the NeurIPS 2027 call appears. In 2026 the types were General,
+7. Choose the contribution type for Phase 1 when the NeurIPS 2027 call appears. In 2026 the types were General,
    Theory, Use-Inspired, Concept and Feasibility, Negative Results; a Theory submission is judged on correctness
    and its experiments need only illuminate the theory. Check that 2027 keeps this.
-9. Extend the identifying-strings list in `tools/make_supplement.py` before any double-blind submission.
-10. If `claims/claims.json` is not on the main branch on GitHub, the 11 Nov reviewer-kit patch (33 files, made
-    against commit 16d07aa) has not been pushed yet; a new session should not assume those files exist there.
+8. Extend the identifying-strings list in `tools/make_supplement.py` before any double-blind submission.
 
 ## Keeping the full scope
 
