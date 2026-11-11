@@ -46,6 +46,11 @@ Neither side can prove an idea is new. Claims are worded "searches up to <date> 
 
 ## Decisions
 
+- 2026-11-11 — Positioning after reading the closest work (CAR, C3, Credit Without Ground Truth, Who&When and its ICML
+  2025 reviews): executed replay plus Shapley is not new. Lead with T5 (logs cannot identify responsibility), T1b/T4
+  (on-policy credit bias and the fairness gap) and T6/T7 (audit-aware agents); present the critic as a tool measured
+  against branch budget. The LLM testbed must be replayable and include Who&When's three judges, a process-reward
+  earliest-error baseline and Agent-as-Judge. Doc: https://claude.ai/artifact/UMkdHMqE7HgLDquz5i7SkS
 - 2026-11-11 — Implementation standard: every claim is executable. `claims/claims.json` lists each theorem and
   experimental claim with its status, check command and the record its numbers come from; `tools/verify_claims.py`
   re-reads every number and runs the theory checks; CI fails if anything drifts. Failures stay in the ledger
