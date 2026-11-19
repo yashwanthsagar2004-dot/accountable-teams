@@ -18,7 +18,7 @@
   --ground-2: #151a1d;
   --ink: #eef1f0;
   --ink-2: #aab3b1;
-  --ink-3: #6f7a78;
+  --ink-3: #a3acaa;
   --line: rgba(238, 241, 240, .12);
   --glass: rgba(238, 241, 240, .035);
   --amber: #f0a34a;          /* branch: an executed counterfactual */
@@ -41,7 +41,8 @@ a { color: inherit; }
   background-size: 64px 64px; background-position: -1px -1px; }
 
 /* header */
-header { display: flex; align-items: center; gap: 32px; padding: 22px 0; }
+header.nav { position: absolute; top: 0; left: 0; right: 0; z-index: 10; }
+header.nav .wrap { display: flex; align-items: center; gap: 32px; padding-top: 22px; padding-bottom: 22px; }
 .mark { display: flex; align-items: center; gap: 10px; font: 600 17px/1 var(--display); letter-spacing: -.01em; text-decoration: none; }
 .mark i { width: 28px; height: 28px; border-radius: 7px; display: grid; place-items: center; font: 600 15px/1 var(--display); font-style: normal;
   background: linear-gradient(140deg, var(--amber), #c9752a); color: #1a1006; }
@@ -58,7 +59,7 @@ nav a:hover::after { transform: scaleX(1); }
 .pill.primary:hover { background: linear-gradient(140deg, #f5b265, #e0913f); }
 
 /* hero */
-.hero { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr); gap: 32px; align-items: center; padding: 40px 0 56px; }
+.hero-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr); gap: 32px; align-items: center; padding-top: 72px; }
 h1 { font: 400 clamp(40px, 5.1vw, 78px)/1.03 var(--display); letter-spacing: -.035em; margin: 0 0 26px; text-wrap: balance; }
 h1 .line { display: block; overflow: hidden; white-space: nowrap; }
 h1 .line > span { display: inline-block; background: linear-gradient(90deg, var(--ink) 55%, var(--ink-2)); -webkit-background-clip: text; background-clip: text; color: transparent; }
@@ -86,12 +87,16 @@ h1 .line > span { display: inline-block; background: linear-gradient(90deg, var(
 .legend i { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; vertical-align: -1px; }
 
 /* sections */
-section { padding: 96px 0; border-top: 1px solid var(--line); }
-.eyebrow { font: 500 12px/1 var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--ink-3); margin: 0 0 18px; }
+main > section { box-sizing: border-box; height: calc(var(--h, 1) * 100vh); display: flex; align-items: center; position: relative; padding: 0; }
+main > section + section { border-top: 1px solid var(--line); }
+main > section > .wrap { width: 100%; position: relative; z-index: 1; }
+.hero .grid-bg { position: absolute; inset: 0; z-index: 0; }
+.eyebrow { display: block; font: 500 12px/1 var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--ink-3); margin: 0 0 18px; }
 h2 { font: 400 clamp(32px, 3.8vw, 54px)/1.06 var(--display); letter-spacing: -.03em; margin: 0 0 22px; max-width: 18ch; text-wrap: balance; }
 .prose { max-width: 62ch; color: var(--ink-2); font-size: 17px; }
 .prose strong { color: var(--ink); font-weight: 500; }
-.two { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 56px; align-items: start; }
+.two { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: 24px; row-gap: 40px; align-items: start; }
+.two > :first-child { grid-column: 1 / span 6; } .two > :last-child { grid-column: 7 / span 6; margin-top: 0; }
 .logs { font: 13px/1.7 var(--mono); border: 1px solid var(--line); border-radius: 14px; overflow: hidden; }
 .logs .row { display: grid; grid-template-columns: 90px 1fr 1fr; border-top: 1px solid var(--line); }
 .logs .row:first-child { border-top: 0; color: var(--ink-3); }
@@ -103,7 +108,8 @@ h2 { font: 400 clamp(32px, 3.8vw, 54px)/1.06 var(--display); letter-spacing: -.0
 .step { border: 1px solid var(--line); border-radius: 16px; padding: 22px; background: var(--ground-2); transition: transform 200ms var(--ease-out), border-color 200ms var(--ease-out); }
 .step:hover { transform: translateY(-2px); border-color: rgba(238,241,240,.22); }
 .step .n { font: 500 13px/1 var(--mono); color: var(--amber); }
-.step h3 { font: 400 22px/1.15 var(--display); letter-spacing: -.015em; margin: 14px 0 10px; }
+h3, .step h3, .chart h3 { font: 400 20px/1.2 var(--display); letter-spacing: -.01em; }
+.step h3 { margin: 14px 0 10px; }
 .step p { margin: 0; color: var(--ink-2); font-size: 15px; }
 .step svg { display: block; margin-top: 18px; width: 100%; height: 70px; }
 
@@ -121,7 +127,7 @@ td.num { font-family: var(--mono); font-variant-numeric: tabular-nums; white-spa
 
 /* charts */
 .chart { border: 1px solid var(--line); border-radius: 16px; padding: 22px; background: var(--ground-2); }
-.chart h3 { font: 500 15px/1.3 var(--body); margin: 0 0 4px; }
+.chart h3 { margin: 0 0 4px; }
 .chart .sub { font-size: 13px; color: var(--ink-3); margin: 0 0 16px; }
 .bars { display: grid; gap: 10px; }
 .bar { display: grid; grid-template-columns: 170px 1fr 64px; gap: 12px; align-items: center; font-size: 14px; }
@@ -141,8 +147,9 @@ td.num { font-family: var(--mono); font-variant-numeric: tabular-nums; white-spa
 .wp .meter i { display: block; height: 100%; background: var(--teal); border-radius: 4px; }
 .wp .pct { font: 13px/1 var(--mono); text-align: right; font-variant-numeric: tabular-nums; }
 .total { display: flex; align-items: baseline; gap: 18px; margin-top: 8px; }
-.total b { font: 400 clamp(56px, 7vw, 96px)/1 var(--display); letter-spacing: -.04em; font-variant-numeric: tabular-nums; }
+.total b { font: 400 clamp(48px, 4.6vw, 64px)/1 var(--display); letter-spacing: -.04em; font-variant-numeric: tabular-nums; }
 
+.closing-actions { margin-top: 36px; margin-bottom: 0; }
 .tools { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; margin-top: 36px; }
 .tool { border: 1px solid var(--line); border-radius: 16px; padding: 20px; transition: transform 200ms var(--ease-out); text-decoration: none; display: block; }
 .tool:hover { transform: translateY(-2px); }
@@ -150,10 +157,14 @@ td.num { font-family: var(--mono); font-variant-numeric: tabular-nums; white-spa
 .tool span { font: 12px/1 var(--mono); color: var(--ink-3); }
 .tool p { margin: 10px 0 0; color: var(--ink-2); font-size: 14.5px; }
 
-footer { padding: 40px 0 60px; border-top: 1px solid var(--line); font-size: 13px; color: var(--ink-3); display: flex; gap: 24px; flex-wrap: wrap; justify-content: space-between; }
+footer.closing { border-top: 1px solid var(--line); font-size: 13px; color: var(--ink-3); }
+footer.closing .wrap { padding-top: 40px; padding-bottom: 60px; display: flex; gap: 24px; flex-wrap: wrap; justify-content: space-between; }
 
 @media (max-width: 980px) {
-  .hero, .two, .charts { grid-template-columns: 1fr; }
+  .hero-grid, .charts { grid-template-columns: minmax(0, 1fr); }
+  .two > :first-child, .two > :last-child { grid-column: 1 / -1; }
+  main > section { height: auto; min-height: calc(var(--h, 1) * 100vh); padding: 96px 0 72px; }
+  .card.a, .card.b { left: auto; right: auto; top: auto; bottom: auto; }
   .steps, .tools { grid-template-columns: 1fr 1fr; }
   nav { display: none; }
   header .pill { margin-left: auto; }
@@ -180,9 +191,7 @@ footer { padding: 40px 0 60px; border-top: 1px solid var(--line); font-size: 13p
 </style>
 </head>
 <body>
-<div class="grid-bg" style="background-color: var(--ground);">
-<div class="wrap">
-  <header>
+<header class="nav"><div class="wrap">
     <a class="mark" href="#top" data-enter><i>A</i>accountable teams</a>
     <nav aria-label="Sections">
       <a href="#problem" data-enter>Problem</a>
@@ -193,9 +202,11 @@ footer { padding: 40px 0 60px; border-top: 1px solid var(--line); font-size: 13p
       <a href="bench.html" data-enter>Bench</a>
     </nav>
     <a class="pill" href="https://github.com/yashwanthsagar2004-dot/accountable-teams" data-enter>Code on GitHub</a>
-  </header>
-
-  <div class="hero" id="top">
+</div></header>
+<main>
+<section class="hero" id="top" style="--h:1" data-enter>
+  <div class="grid-bg" aria-hidden="true"></div>
+  <div class="wrap hero-grid">
     <div>
       <h1>
         <span class="line"><span>Blame you can</span></span>
@@ -226,15 +237,11 @@ footer { padding: 40px 0 60px; border-top: 1px solid var(--line); font-size: 13p
       <div class="legend"><span><i style="background:#f0a34a"></i>agent joins</span><span><i style="background:#7fc4bb"></i>coalition value</span><span>bottom: all on reference · top: as recorded</span></div>
     </div>
   </div>
-</div>
-</div>
-
-<div class="wrap">
-  <section id="problem">
-    <p class="eyebrow">01 · The problem</p>
+</section>
+<section id="problem" style="--h:1"><div class="wrap">
     <div class="two">
       <div>
-        <h2>Logs cannot say who caused a failure.</h2>
+        <h2><span class="eyebrow">01 · The problem</span>Logs cannot say who caused a failure.</h2>
         <div class="prose">
           <p>Regulators now ask for records of what AI systems did (EU AI Act, Article 12). For a team of agents, a record shows who acted, not who was <strong>responsible</strong>. Two teams can leave identical logs and still differ in which agent the outcome depended on (Theorem T5).</p>
           <p>Current attribution work labels failures with an LLM judge or with the earliest step that, once fixed, saves the run. Reviewers of those papers kept asking the same question: is the label true? This project answers by measurement. Reset the simulator, replace the agent's actions with a declared reference, execute the branch, and compare.</p>
@@ -248,14 +255,13 @@ footer { padding: 40px 0 60px; border-top: 1px solid var(--line); font-size: 13p
         <div class="row"><div>replay</div><div class="diff">swap agent 1 → success</div><div class="diff">swap agent 1 → still fails</div></div>
       </div>
     </div>
-  </section>
+</div></section>
 
-  <section id="method">
-    <p class="eyebrow">02 · The method</p>
-    <h2>Four steps from a failed run to a number with an error bar.</h2>
+<section id="method" style="--h:1"><div class="wrap">
+    <h2><span class="eyebrow">02 · The method</span>Four steps from a failed run to a number with an error bar.</h2>
     <div class="steps">
       <div class="step"><div class="n">01</div><h3>Intervene</h3><p>Agents outside a coalition take their declared reference for a window. The branch is executed, never imagined.</p>
-        <svg viewBox="0 0 200 70" aria-hidden="true"><path d="M10 50 H90" stroke="#6f7a78" stroke-width="2"/><path d="M90 50 Q120 50 140 20 H190" stroke="#f0a34a" stroke-width="2" fill="none"/><path d="M90 50 H190" stroke="#aab3b1" stroke-width="2" stroke-dasharray="4 5"/><circle cx="90" cy="50" r="5" fill="#f0a34a"/></svg></div>
+        <svg viewBox="0 0 200 70" aria-hidden="true"><path d="M10 50 H90" stroke="#a3acaa" stroke-width="2"/><path d="M90 50 Q120 50 140 20 H190" stroke="#f0a34a" stroke-width="2" fill="none"/><path d="M90 50 H190" stroke="#aab3b1" stroke-width="2" stroke-dasharray="4 5"/><circle cx="90" cy="50" r="5" fill="#f0a34a"/></svg></div>
       <div class="step"><div class="n">02</div><h3>Share fairly</h3><p>Shapley values split the outcome over agents. When two faults are both needed, each gets half.</p>
         <svg viewBox="0 0 200 70" aria-hidden="true"><rect x="10" y="20" width="85" height="28" rx="6" fill="#7fc4bb" opacity=".8"/><rect x="105" y="20" width="85" height="28" rx="6" fill="#7fc4bb" opacity=".45"/></svg></div>
       <div class="step"><div class="n">03</div><h3>Cancel the noise</h3><p>Every coalition reuses the same random numbers, so shared randomness drops out of the differences.</p>
@@ -263,11 +269,10 @@ footer { padding: 40px 0 60px; border-top: 1px solid var(--line); font-size: 13p
       <div class="step"><div class="n">04</div><h3>Amortise and audit</h3><p>A permutation-equivariant critic answers instantly; its least certain decisions go to a Monte Carlo audit.</p>
         <svg viewBox="0 0 200 70" aria-hidden="true"><g fill="#7fc4bb"><circle cx="20" cy="35" r="5"/><circle cx="50" cy="35" r="5"/><circle cx="80" cy="35" r="5"/><circle cx="110" cy="35" r="5"/></g><circle cx="140" cy="35" r="5" fill="#f0a34a"/><circle cx="170" cy="35" r="5" fill="#7fc4bb"/><path d="M134 22 h12 M140 16 v12" stroke="#f0a34a" stroke-width="2"/></svg></div>
     </div>
-  </section>
+</div></section>
 
-  <section id="evidence">
-    <p class="eyebrow">03 · Evidence</p>
-    <h2>Every claim, with its record. Including the one that fails.</h2>
+<section id="evidence" style="--h:2"><div class="wrap">
+    <h2><span class="eyebrow">03 · Evidence</span>Every claim, with its record. Including the one that fails.</h2>
     <div class="prose"><p>Statuses come from the claims ledger, which CI checks against machine-written records. Exploratory means few seeds and not pre-registered.</p></div>
     <div class="table-wrap">
       <table>
@@ -297,13 +302,12 @@ footer { padding: 40px 0 60px; border-top: 1px solid var(--line); font-size: 13p
         <p class="note">Mean −0.18, spread 1.01, close to the 0 and 1 a correct error bar gives. A first check; a stronger one across episodes is due before the 8- and 16-agent runs (review S4).</p>
       </div>
     </div>
-  </section>
+</div></section>
 
-  <section id="testbed">
-    <p class="eyebrow">04 · Testbed</p>
+<section id="testbed" style="--h:1"><div class="wrap">
     <div class="two">
       <div>
-        <h2>The earliest error is not always the cause.</h2>
+        <h2><span class="eyebrow">04 · Testbed</span>The earliest error is not always the cause.</h2>
         <div class="prose">
           <p>A replayable three-role team (planner, solver, verifier) on checkable arithmetic tasks, 4,000 episodes per setting. The agents are scripted with error rates, not language models yet: this tests the measurement and the protocol.</p>
           <p>In a uniformly weaker team, <strong>12.4% of failures have no single decisive error</strong>, so the convention used by Who&amp;When, AgenTracer and Aegis returns nothing, while measured responsibility still assigns blame. 39% of those failures have blame shared by two or more agents.</p>
@@ -316,23 +320,21 @@ footer { padding: 40px 0 60px; border-top: 1px solid var(--line); font-size: 13p
         <p class="note">Measured blame repairs as often as the earliest-error rule here and also covers the failures that rule cannot label. Real LLM agents plug into the same harness next.</p>
       </div>
     </div>
-  </section>
+</div></section>
 
-  <section id="status">
-    <p class="eyebrow">05 · Status</p>
+<section id="status" style="--h:1"><div class="wrap">
     <div class="two">
       <div>
-        <h2>How far along it is, by a rubric anyone can rerun.</h2>
+        <h2><span class="eyebrow">05 · Status</span>How far along it is, by a rubric anyone can rerun.</h2>
         <div class="prose"><p>Each work package has a weight and a fraction that moves only with evidence a reader can open: a record, a test or a commit. <code>python tools/progress.py</code> prints the same figure.</p></div>
         <div class="total"><b id="pct-total">54%</b><span class="prose">complete as of 19 Nov 2026</span></div>
       </div>
       <div class="ledger" id="ledger"></div>
     </div>
-  </section>
+</div></section>
 
-  <section id="tools">
-    <p class="eyebrow">06 · Toolchain</p>
-    <h2>Open skills the project is built with.</h2>
+<section id="tools" style="--h:1"><div class="wrap">
+    <h2><span class="eyebrow">06 · Toolchain</span>Open skills the project is built with.</h2>
     <div class="tools">
       <a class="tool" href="https://github.com/Leonxlnx/taste-skill"><b>taste-skill</b><span>Leonxlnx · MIT</span><p>Design direction for this page: one section per screen, equal edges, a dealt hero entrance.</p></a>
       <a class="tool" href="https://github.com/emilkowalski/skills"><b>Emil Kowalski skills</b><span>emilkowalski · MIT</span><p>Motion: ease-out curves, 160–220 ms controls, one entrance, reduced-motion fallbacks.</p></a>
@@ -341,13 +343,14 @@ footer { padding: 40px 0 60px; border-top: 1px solid var(--line); font-size: 13p
       <a class="tool" href="https://github.com/wanshuiyin/Auto-claude-code-research-in-sleep"><b>ARIS research skills</b><span>wanshuiyin · MIT</span><p>Claim audits against records, ablation plans and the strongest rejection argument.</p></a>
       <a class="tool" href="https://github.com/alirezarezvani/claude-skills"><b>Adversarial review</b><span>attack, judge, author</span><p>Independent sessions try to break the work; a separate judge rules; the pattern a post credits to Felix Rieseberg.</p></a>
     </div>
-  </section>
+    <div class="actions closing-actions"><a class="pill primary" href="https://github.com/yashwanthsagar2004-dot/accountable-teams">Open the repository</a><a class="pill" href="bench.html">Try the intervention bench</a></div>
+</div></section>
 
-  <footer>
+</main>
+<footer class="closing"><div class="wrap">
     <span>Accountable-by-Design Agent Teams · Yashwanth Sagar Gone · AI assistance declared in the repository</span>
     <span>Reviewed with the MotionSites web-builder rubric</span>
-  </footer>
-</div>
+</div></footer>
 
 <script>
 const DATA = {
@@ -359,7 +362,7 @@ const DATA = {
   repair: [
     { label: "Top measured blame", v: 0.883, ci: [0.866, 0.898], color: "#7fc4bb" },
     { label: "Earliest error", v: 0.876, ci: [0.858, 0.892], color: "#f0a34a" },
-    { label: "Random agent", v: 0.381, ci: [0.357, 0.405], color: "#6f7a78" }
+    { label: "Random agent", v: 0.381, ci: [0.357, 0.405], color: "#a3acaa" }
   ],
   ledger: [
     ["WP1", "Theory with numerical checks", 15, 0.8],
@@ -397,7 +400,7 @@ document.getElementById("pct-hero").textContent = pct;
   const W = c.clientWidth, H = 150; c.width = W * dpr; c.height = H * dpr; const g = c.getContext("2d"); g.scale(dpr, dpr);
   const x = z => 20 + ((z + 3.5) / 7) * (W - 40), y = p => H - 24 - p * (H - 40) / 0.42;
   g.strokeStyle = "rgba(238,241,240,.12)"; g.beginPath(); g.moveTo(20, H - 24); g.lineTo(W - 20, H - 24); g.stroke();
-  g.fillStyle = "#6f7a78"; g.font = "11px IBM Plex Mono, monospace"; g.textAlign = "center";
+  g.fillStyle = "#a3acaa"; g.font = "11px IBM Plex Mono, monospace"; g.textAlign = "center";
   [-3, -2, -1, 0, 1, 2, 3].forEach(t => g.fillText(t, x(t), H - 8));
   const pdf = (z, m, s) => Math.exp(-0.5 * ((z - m) / s) ** 2) / (s * Math.sqrt(2 * Math.PI));
   const curve = (m, s, col, fill) => { g.beginPath(); for (let z = -3.5; z <= 3.5; z += 0.05) { const px = x(z), py = y(pdf(z, m, s)); z === -3.5 ? g.moveTo(px, py) : g.lineTo(px, py); }
@@ -452,7 +455,7 @@ document.getElementById("pct-hero").textContent = pct;
     masks.forEach(m => { const q = pos[m], on = path.slice(0, Math.floor(stage) + 1).includes(m);
       g.beginPath(); g.arc(q.x, q.y, on ? 5.5 : 3.5, 0, Math.PI * 2); g.fillStyle = on ? "#eef1f0" : "rgba(127,196,187,.55)"; g.fill();
       if (on) { for (let i = 0; i < 4; i++) if (m >> i & 1) { g.beginPath(); g.arc(q.x + (i - 1.5) * 7, q.y - 11, 2.2, 0, Math.PI * 2); g.fillStyle = AG[i]; g.fill(); } } });
-    g.font = "11px IBM Plex Mono, monospace"; g.fillStyle = "#6f7a78"; g.textAlign = "center";
+    g.font = "11px IBM Plex Mono, monospace"; g.fillStyle = "#a3acaa"; g.textAlign = "center";
 
     if (!reduce) requestAnimationFrame(draw);
   }

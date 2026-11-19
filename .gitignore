@@ -4,3 +4,8 @@ __pycache__/
 .pytest_cache/
 .venv/
 web/tests/ref.json
+
+# taste-skill asset library: fetched from upstream at the commit in UPSTREAM.md, not committed (about 14 MB)
+.claude/skills/taste-skill/assets/*/
+.claude/skills/taste-skill/library/
+.taste-skill/
