@@ -1,0 +1,86 @@
+{
+  "as_of": "2026-11-19",
+  "rule": "done = weight x fraction; a fraction moves only with evidence a reader can open (a record, a test, a commit). GPU results count only when their records are in experiments/ and verified.",
+  "packages": [
+    {
+      "id": "WP1",
+      "name": "Theory: T1a-T7 with numerical checks",
+      "weight": 15,
+      "fraction": 0.8,
+      "evidence": "CLAIMS.md: T1a, T2-T7 checked by theory/check_theory_*.py",
+      "left": "Yash's own proofs (current ones are AI-drafted)"
+    },
+    {
+      "id": "WP2",
+      "name": "Core library: interventional game, Shapley, critics, set critic, audits, statistics",
+      "weight": 15,
+      "fraction": 0.9,
+      "evidence": "src/accteams/*, 28 tests passing",
+      "left": "fixes from the 19 Nov adversarial review"
+    },
+    {
+      "id": "WP3",
+      "name": "Benchmarks: LBF and RobotWarehouse, scripted teams, 3 map sizes, 4-16 agents",
+      "weight": 8,
+      "fraction": 0.75,
+      "evidence": "experiments/envs.py, check_sampled_gt.py",
+      "left": "learned (MAPPO) teams as the measured team; BlameBench packaging"
+    },
+    {
+      "id": "WP4",
+      "name": "Measurement experiments: critic vs Monte Carlo, 10 seeds, 4/8/16 agents",
+      "weight": 15,
+      "fraction": 0.3,
+      "evidence": "4-agent gates, 3 seeds (LBF pass, RWARE fail); sampled ground truth validated",
+      "left": "version-2 GPU runs"
+    },
+    {
+      "id": "WP5",
+      "name": "Credit-learning experiments: team vs responsibility vs counterfactual",
+      "weight": 10,
+      "fraction": 0.35,
+      "evidence": "MAPPO built; collapse found and fixed (9a01824); 2 v2 seeds on Drive",
+      "left": "10 seeds x 10k updates, 2 environments"
+    },
+    {
+      "id": "WP6",
+      "name": "Replayable LLM-agent testbed with Who&When-style baselines and a repair test",
+      "weight": 15,
+      "fraction": 0.25,
+      "evidence": "src/accteams/llmteam.py (replayable 3-role team, exact Shapley, earliest-decisive-error baseline, repair test, LLMRole slot), tests/test_llmteam.py, experiments/llm_testbed_2026-11-19.json (scripted agents, 4 settings x 4,000 episodes)",
+      "left": "real local LLM agents through LLMRole, replay fidelity on them, Who&When judge baselines, BlameBench release"
+    },
+    {
+      "id": "WP7",
+      "name": "Evidence infrastructure: claims ledger, CI, provenance, resumable runs, vendored skills",
+      "weight": 7,
+      "fraction": 0.9,
+      "evidence": "tools/verify_claims.py, .github/workflows/ci.yml, StageCache, SKILLS.md",
+      "left": "review fixes"
+    },
+    {
+      "id": "WP8",
+      "name": "Positioning: closest work, peer reviews of Who&When, AgenTracer, Aegis",
+      "weight": 5,
+      "fraction": 0.9,
+      "evidence": "positioning doc, claude/reviews/*",
+      "left": "SHAQ and FastSHAP reviews"
+    },
+    {
+      "id": "WP9",
+      "name": "Explainable visual system and project page",
+      "weight": 5,
+      "fraction": 0.7,
+      "evidence": "web/ bench (docs/bench.html), project page docs/index.html",
+      "left": "rebuild the bench views from recorded runs"
+    },
+    {
+      "id": "WP10",
+      "name": "Paper (written by Yash) and public release",
+      "weight": 5,
+      "fraction": 0.05,
+      "evidence": "outline only",
+      "left": "writing, figures, release"
+    }
+  ]
+}
