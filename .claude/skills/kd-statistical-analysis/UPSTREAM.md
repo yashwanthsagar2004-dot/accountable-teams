@@ -1,0 +1,1 @@
+Vendored from https://github.com/K-Dense-AI/claude-scientific-skills (K-Dense-AI_claude-scientific-skills/skills/statistical-analysis), commit ec59a29, on 2026-11-19. Unmodified; licence in UPSTREAM_LICENSE.

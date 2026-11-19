@@ -1,0 +1,1 @@
+Vendored from https://github.com/wanshuiyin/Auto-claude-code-research-in-sleep (wanshuiyin_Auto-claude-code-research-in-sleep/skills/novelty-check), commit ca70fe2, on 2026-11-19. Unmodified; licence in UPSTREAM_LICENSE.

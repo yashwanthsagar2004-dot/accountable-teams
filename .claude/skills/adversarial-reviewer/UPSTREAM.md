@@ -1,0 +1,1 @@
+Vendored from https://github.com/alirezarezvani/claude-skills (alirezarezvani_claude-skills/engineering-team/skills/adversarial-reviewer), commit f8593c4, on 2026-11-19. Unmodified; licence in UPSTREAM_LICENSE.
