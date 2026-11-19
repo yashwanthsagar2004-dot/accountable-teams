@@ -74,3 +74,11 @@ def test_measured_responsibility_and_audits_on_lbf(lbf, food_level):
 
 def test_audit_budget_formula():
     assert audits_needed(1.0, 0.1, 4) == int(np.ceil(2 * np.log(2 * 4 / 0.05) / 0.01))
+
+
+def test_window_longer_than_horizon_raises():
+    """Review C2: a window past the horizon used to be cut silently."""
+    import pytest
+    from accteams.branching import make_branch_fn
+    with pytest.raises(ValueError):
+        make_branch_fn(lambda s, a: (s, None), lambda o, k: 0, 0, horizon=10, gamma=0.99, window=20)

@@ -88,7 +88,7 @@ def sampled_shapley(run_masks, s, a, n, perms, reps, key, rng):
 
 def direct_permutation_audit(run_masks, s, a, n, perms_per_agent, key, rng):
     """The audit estimator of setcritic.permutation_estimate, run directly on branches (no 2^n table):
-    for each agent, perms_per_agent pairs of independent branches with and without it; 2 * n * ppa branches."""
+    for each agent, perms_per_agent pairs of branches with and without it, each pair on common random numbers; 2 * n * ppa branches."""
     ppa = max(1, perms_per_agent)
     pairs = []
     for i in range(n):
@@ -100,7 +100,8 @@ def direct_permutation_audit(run_masks, s, a, n, perms_per_agent, key, rng):
             m1 = m0.copy()
             m1[i] = 1.0
             pairs += [m1, m0]
-    vals = np.asarray(run_masks(s, a, jnp.asarray(np.stack(pairs)), jax.random.split(key, len(pairs))))
+    keys = jnp.repeat(jax.random.split(key, len(pairs) // 2), 2, axis=0)   # each with/without pair shares its key
+    vals = np.asarray(run_masks(s, a, jnp.asarray(np.stack(pairs)), keys))
     d = (vals[0::2] - vals[1::2]).reshape(n, ppa)
     var = d.var(1, ddof=1) / ppa if ppa > 1 else np.full(n, np.nan)
     return d.mean(1), var

@@ -7,7 +7,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with: {python-version: "3.11"}
-      - run: pip install -e ".[dev]"
+      - run: pip install -e ".[dev]" jumanji   # jumanji: the branching and MAPPO tests run in CI too (review R8)
       - run: pytest -q
       - name: Theory checks and claims ledger
         run: python tools/verify_claims.py --checks

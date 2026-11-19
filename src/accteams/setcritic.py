@@ -152,7 +152,7 @@ def ensemble_readout(models, x, a, g):
 # ------------------------------------------------------------------ audit hybrids
 def permutation_estimate(vals, n, perms_per_agent, rng):
     """Permutation-sampling Shapley estimate from a table of branch returns vals[mask, rep] for ONE decision.
-    Uses 2 * perms_per_agent * n branches; returns the estimate and the per-agent sample variance of the mean."""
+    Uses 2 * perms_per_agent * n branches, paired by common random numbers; returns the estimate and the per-agent sample variance of the mean."""
     reps = vals.shape[1]
     est, var = np.zeros(n), np.zeros(n)
     for i in range(n):
@@ -161,8 +161,8 @@ def permutation_estimate(vals, n, perms_per_agent, rng):
             perm = rng.permutation(n)
             pos = int(np.where(perm == i)[0][0])
             s = sum(1 << int(q) for q in perm[:pos])
-            r1, r2 = rng.integers(reps), rng.integers(reps)        # two independent branches
-            d.append(vals[s | (1 << i), r1] - vals[s, r2])
+            r = rng.integers(reps)                                  # one paired draw: the table shares random numbers
+            d.append(vals[s | (1 << i), r] - vals[s, r])            # across coalitions in a column (review S1)
         d = np.asarray(d)
         est[i] = d.mean()
         var[i] = d.var(ddof=1) / len(d) if len(d) > 1 else np.nan

@@ -52,6 +52,7 @@ for n in range(2, 9):
     formula = 2 * (n - 1) * sum(1 / t for t in range(1, n)) / n
     best = sum(1 / math.sqrt(s * (n - s)) for s in range(1, n)) ** 2
     print(f"   n={n}: enumeration {enum:.4f}  formula {formula:.4f}  best symmetric design {best:.4f}")
+    assert abs(enum - formula) < 1e-9 * max(1.0, formula), (n, enum, formula)        # T3 kernel factor Z
 
 n, sigma, B, reps = 4, 1.0, 20000, 4000
 props, p = kernel_p(n)
@@ -79,6 +80,7 @@ for name, v in games.items():
         est.append(wls_shapley(n, props, means, counts / B, v0, vn)[0])
     rand = np.var(est) * B / sigma ** 2
     print(f"   n=4 {name:12s}: B*Var/sigma^2 stratified {strat:.3f} (formula {F:.3f}); random design {rand:.3f}")
+    assert abs(strat - F) < 0.15 * F, (name, strat, F)                                # T3, Monte Carlo tolerance
 
 # ---------- 2. permutation audits ----------
 n, sigma, B, reps = 5, 0.7, 2000, 4000
@@ -101,6 +103,8 @@ for _ in range(reps):
         tot += v[S | {0}] - v[S] + rng.normal(0, sigma) - rng.normal(0, sigma)
     est.append(tot / (B // 2))
 print(f"2. Permutation audits (n=5, B={B}): empirical variance {np.var(est):.5f}, formula (2Var+4sigma^2)/B = {(2 * var_delta + 4 * sigma ** 2) / B:.5f}")
+_f = (2 * var_delta + 4 * sigma ** 2) / B
+assert abs(np.var(est) - _f) < 0.15 * _f, (np.var(est), _f)                          # audit variance law
 
 
 # ---------- 3. T4(2) ----------
@@ -125,6 +129,7 @@ for trial in range(300):
     pred = kappa * np.prod([p[j] for j in T - {w, s}]) * (p[s] - p[w])
     worst = max(worst, abs((err[w] - err[s]) - pred))
 print(f"3. T4(2) gap formula vs least-squares fit, 300 random cases (n=3..6): max abs diff {worst:.1e}")
+assert worst < 1e-8, worst                                                             # T4 gap formula
 
 # ---------- 4. T5 remark ----------
 print("4. T5 with exploration: lower bound (1-eps)^N / 2 on the larger error probability")

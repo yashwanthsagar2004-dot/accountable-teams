@@ -42,6 +42,7 @@ for trial in range(300):
     f, cf = fit_onpolicy(m, n, k, p), closed_form(m, n, k, p)
     worst = max(worst, max(abs(f[U] - cf[U]) for U in f if U))
 print(f"1. T1b closed form vs least squares, 300 random games (n=3..6, all k<n): max abs diff {worst:.2e}")
+assert worst < 1e-8, worst                                                             # T1b closed form
 
 # ---------- 2. Lemma 2 and T2(iii) ----------
 def anova(Qtab, n, q):  # Qtab: dict x->value on {0,1}^n; q: P(x_j=1) under product reference mu
@@ -100,6 +101,8 @@ for plan, name in ((1, 'compensate'), (0, 'fail')):
     v_empty = plan            # a1 replaced by 0: success iff agent 2's off-path plan compensates
     v_one = 1                 # a1 = 1: agent 2 plays 1 on path: success
     print(f"4. T5 team with off-path plan '{name}': on-path data identical (a1=1, a2=1, success); responsibility of agent 1 = {v_one - v_empty}")
+    T5_resp = {**globals().get("T5_resp", {}), name: v_one - v_empty}
+assert T5_resp["compensate"] == 0 and T5_resp["fail"] == 1, T5_resp                   # T5: same logs, different blame
 
 # ---------- 5. T7 with a set E ----------
 worst_ratio = 0.0
@@ -114,3 +117,4 @@ for trial in range(2000):
     bound = 2 * 1.0 * max(float(P[S][E].sum()) for S in subsets(n))
     if bound > 0: worst_ratio = max(worst_ratio, shift / bound)
 print(f"5. T7 set version: max shift / (2R max_S P_S(E)) over 2000 random instances = {worst_ratio:.3f} (must be <= 1)")
+assert worst_ratio <= 1 + 1e-9, worst_ratio                                          # T7 bound

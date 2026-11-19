@@ -46,6 +46,15 @@ Neither side can prove an idea is new. Claims are worded "searches up to <date> 
 
 ## Decisions
 
+- 2026-11-19 — Attack-judge-author review completed (reviews/adversarial/2026-11-19-*.md). The judge confirmed the
+  critic-loss bias (C1): the old optimum is not the Shapley value under higher-order interactions (bias about 10% on
+  LBF w20, 0.1% on RWARE w10). Fixed with separately fitted anchors and verified exactly (error 2e-15). Every critic
+  number before the fix is stale: Gate-LBF is reworded (shrinkage, window chosen after a sweep, old loss), Gate-RWARE
+  still fails against the fair, paired Monte Carlo baseline, T4's 3-seed gap is not significant. Resumes now check a
+  fingerprint, theory checks assert, CI runs the JAX environment tests. The v3 GPU runs replace the v2 ones.
+  Open for Yash: S7 (bootstrap convention), R4 (label the Drive LBF run void), C3/C5/C6/C7/C9/S4/S10/R6.
+- 2026-11-19 — Skills vendored with licences (SKILLS.md); rederive decision map built (docs/REDERIVE.md).
+  Progress rubric: 58.1% (status/progress.json); the old gate and credit evidence was marked down after the review.
 - 2026-11-11 — Colab runtime lost again (disconnected for inactivity or maximum duration, ~13:15-13:45 UTC), then the
   free-tier GPU limit was reached; Yash chose to wait for the quota. Finished credit-v2 seeds survive on Drive. The
   LBF critic run lost its first seed after more than 80 minutes, so critic_budget now caches every expensive stage
@@ -99,6 +108,11 @@ Neither side can prove an idea is new. Claims are worded "searches up to <date> 
 
 ## Results (all exploratory until the prereg-v1 tag)
 
+- 2026-11-19 — H1 on planted games, confirmatory form (CPU, fixed critic, 4 agents, order 3, 10 seeds; record
+  experiments/tier1_confirm_2026-11-19.json, commit e9f3093, clean tree). Executed-branch critic IQM error 0.410
+  (20k returns) and 0.286 (80k) against additive on-policy 0.540 and 0.537; better on all 10 seeds at both budgets,
+  paired sign-flip p = 0.002, Holm 0.004. Weak-minus-strong gap of the additive model -0.015 +/- 0.148: the T4 gap
+  seen in the 3-seed pilot does not replicate here.
 - 2026-11-11 — Reviewer kit checks (CPU): 14 tests pass, 1 skipped (needs jumanji); `verify_claims.py --checks`:
   14 claims, 9 quoted numbers match their records, 4 check scripts pass. The bench's JavaScript core agrees with
   the repo's Python on 12 random games (max difference 6e-15) and reproduces T3 by simulation at 4 agents:

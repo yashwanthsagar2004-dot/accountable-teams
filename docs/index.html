@@ -273,12 +273,12 @@ footer { padding: 40px 0 60px; border-top: 1px solid var(--line); font-size: 13p
       <table>
         <thead><tr><th>Claim</th><th>Status</th><th>Statement</th><th>Numbers from the records</th></tr></thead>
         <tbody>
-          <tr><td>T4</td><td><span class="chip checked">checked</span></td><td>On-policy additive credit favours the weaker of two synergistic agents; executed branches do not.</td><td class="num">gap 0.130 vs 0.010</td></tr>
+          <tr><td>T4</td><td><span class="chip checked">checked</span></td><td>On-policy additive credit favours the weaker of two synergistic agents. The formula holds exactly; on planted games the predicted gap did not replicate in 10 seeds.</td><td class="num">gap −0.015 ± 0.148</td></tr>
           <tr><td>T5</td><td><span class="chip checked">checked</span></td><td>Identical logs, different responsibility: logs alone do not identify it.</td><td class="num">constructive proof</td></tr>
           <tr><td>T7</td><td><span class="chip checked">checked</span></td><td>Audits indistinguishable up to δ cap blame shifting at 2Rδ, tight up to a factor of 4.</td><td class="num">bound check</td></tr>
-          <tr><td>H1 pilot</td><td><span class="chip exploratory">exploratory</span></td><td>Planted games, 4 agents, 3 seeds: the executed-branch critic keeps improving; the on-policy model stalls at its bias.</td><td class="num">error 0.241 vs 0.542</td></tr>
-          <tr><td>LBF gate</td><td><span class="chip exploratory">exploratory</span></td><td>Level-Based Foraging, 20-step window: the critic beats a 32-branch Monte Carlo estimate on all 3 seeds.</td><td class="num">0.654 vs 0.925</td></tr>
-          <tr><td>RWARE gate</td><td><span class="chip fails">fails</span></td><td>RobotWarehouse, 10-step window: the critic loses to 32-branch Monte Carlo; it is worth about 7 branches here.</td><td class="num">0.576 vs 0.268</td></tr>
+          <tr><td>H1 planted</td><td><span class="chip exploratory">exploratory</span></td><td>Planted games, 4 agents, 10 seeds, fixed critic: executed branches beat the on-policy model on every seed and keep improving with budget (Holm p = 0.004).</td><td class="num">error 0.286 vs 0.537</td></tr>
+          <tr><td>LBF gate</td><td><span class="chip exploratory">rerun pending</span></td><td>Level-Based Foraging, 20-step window: below raw 32-branch Monte Carlo on 3 seeds, but not shown to beat a shrunk Monte Carlo estimate (0.65–0.69). Measured before the critic-loss fix of 19 Nov.</td><td class="num">0.654 vs 0.925</td></tr>
+          <tr><td>RWARE gate</td><td><span class="chip fails">fails</span></td><td>RobotWarehouse, 10-step window: the critic loses to 32-branch Monte Carlo with paired random numbers, on all 3 seeds.</td><td class="num">0.576 vs 0.268</td></tr>
           <tr><td>H1 confirm</td><td><span class="chip untested">untested</span></td><td>10 seeds, pre-registered, IQM with stratified bootstrap and Holm correction, learned teams.</td><td class="num">GPU runs pending</td></tr>
         </tbody>
       </table>
@@ -288,13 +288,13 @@ footer { padding: 40px 0 60px; border-top: 1px solid var(--line); font-size: 13p
         <h3>The credit bug, found and fixed</h3>
         <p class="sub">Reward per step at the end of training, LBF, 600 updates, CPU, 2 seeds (mean shown)</p>
         <div class="bars" id="bars-credit"></div>
-        <p class="note">The responsibility term was rescaled on its own, so early critic noise outweighed the team signal 35 to 780 times and the policy collapsed. Fixed in commit 9a01824.</p>
+        <p class="note">The responsibility term was rescaled on its own, so early critic noise outweighed the team signal 35 to 780 times and the policy collapsed. Fixed in commit 9a01824. A CPU check without a machine-written record yet; the 10-seed GPU comparison will replace it.</p>
       </div>
       <div class="chart">
         <h3>Sampled ground truth is honest about its error</h3>
         <p class="sub">z = (sampled − exact) / standard error, 48 values, LBF, 4 agents</p>
         <canvas id="zplot" height="150" style="width:100%" role="img" aria-label="Histogram of z-scores with a standard normal curve; mean −0.18, standard deviation 1.01"></canvas>
-        <p class="note">Mean −0.18, spread 1.01, close to the 0 and 1 a correct error bar gives. This is what lets the runs go to 8 and 16 agents.</p>
+        <p class="note">Mean −0.18, spread 1.01, close to the 0 and 1 a correct error bar gives. A first check; a stronger one across episodes is due before the 8- and 16-agent runs (review S4).</p>
       </div>
     </div>
   </section>
@@ -337,15 +337,15 @@ footer { padding: 40px 0 60px; border-top: 1px solid var(--line); font-size: 13p
       <a class="tool" href="https://github.com/Leonxlnx/taste-skill"><b>taste-skill</b><span>Leonxlnx · MIT</span><p>Design direction for this page: one section per screen, equal edges, a dealt hero entrance.</p></a>
       <a class="tool" href="https://github.com/emilkowalski/skills"><b>Emil Kowalski skills</b><span>emilkowalski · MIT</span><p>Motion: ease-out curves, 160–220 ms controls, one entrance, reduced-motion fallbacks.</p></a>
       <a class="tool" href="https://github.com/nexu-io/open-design"><b>Open Design</b><span>nexu-io · Apache-2.0</span><p>Frontend craft rules and the restrained motion pass after layout.</p></a>
-      <a class="tool" href="https://github.com/EricJujianZou/rederive"><b>rederive</b><span>EricJujianZou · MIT</span><p>Yash re-derives the eight design decisions from first principles before interviews.</p></a>
+      <a class="tool" href="https://github.com/EricJujianZou/rederive"><b>rederive</b><span>EricJujianZou · MIT</span><p>Yash re-derives the nine design decisions from first principles before interviews.</p></a>
       <a class="tool" href="https://github.com/wanshuiyin/Auto-claude-code-research-in-sleep"><b>ARIS research skills</b><span>wanshuiyin · MIT</span><p>Claim audits against records, ablation plans and the strongest rejection argument.</p></a>
-      <a class="tool" href="https://github.com/alirezarezvani/claude-skills"><b>Adversarial review</b><span>attack, judge, author</span><p>Independent sessions try to break the work; a separate judge rules (Felix Rieseberg's method).</p></a>
+      <a class="tool" href="https://github.com/alirezarezvani/claude-skills"><b>Adversarial review</b><span>attack, judge, author</span><p>Independent sessions try to break the work; a separate judge rules; the pattern a post credits to Felix Rieseberg.</p></a>
     </div>
   </section>
 
   <footer>
     <span>Accountable-by-Design Agent Teams · Yashwanth Sagar Gone · AI assistance declared in the repository</span>
-    <span>Hero layout adapted from the MotionSites "Strata AI" prompt</span>
+    <span>Reviewed with the MotionSites web-builder rubric</span>
   </footer>
 </div>
 
@@ -366,11 +366,11 @@ const DATA = {
     ["WP2", "Core library", 15, 0.9],
     ["WP3", "Benchmarks, 4–16 agents", 8, 0.75],
     ["WP4", "Measurement runs, 10 seeds", 15, 0.3],
-    ["WP5", "Credit-learning runs", 10, 0.35],
+    ["WP5", "Credit-learning runs", 10, 0.3],
     ["WP6", "Replayable LLM-agent testbed", 15, 0.25],
-    ["WP7", "Evidence infrastructure", 7, 0.9],
+    ["WP7", "Evidence infrastructure", 7, 0.95],
     ["WP8", "Positioning and reviews", 5, 0.9],
-    ["WP9", "Visual system and page", 5, 0.7],
+    ["WP9", "Visual system and page", 5, 0.8],
     ["WP10", "Paper and release", 5, 0.05]
   ],
   z: { n: 48, mean: -0.18, sd: 1.01 }

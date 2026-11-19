@@ -43,7 +43,8 @@ def prob_improvement(x, y, lower_is_better: bool = False) -> float:
 
 
 def permutation_test(x, y, reps: int = 20000, seed: int = 0) -> float:
-    """Two-sided p-value for a difference in means between two independent sets of runs (labels permuted)."""
+    """Two-sided p-value for a difference in means between two independent sets of runs (labels permuted).
+    Unpaired and pooled over tasks: for methods run on the same seeds use paired_sign_flip."""
     x, y = np.asarray(x, dtype=float).ravel(), np.asarray(y, dtype=float).ravel()
     rng = np.random.default_rng(seed)
     pooled, obs = np.concatenate([x, y]), abs(x.mean() - y.mean())
@@ -64,3 +65,12 @@ def holm(pvalues, alpha: float = 0.05):
         running = max(running, (p.size - rank) * p[i])
         adj[i] = min(1.0, running)
     return adj, adj <= alpha
+
+
+def paired_sign_flip(x, y, reps: int = 20000, seed: int = 0) -> float:
+    """Two-sided p-value for the mean of paired differences (same seed, two methods): flip each difference's sign
+    at random. Use this, not permutation_test, when both methods ran on the same seeds (review S6)."""
+    d = np.asarray(x, dtype=float).ravel() - np.asarray(y, dtype=float).ravel()
+    rng = np.random.default_rng(seed)
+    null = np.abs((rng.choice([-1.0, 1.0], size=(reps, d.size)) * d).mean(1))
+    return float((1 + np.sum(null >= abs(d.mean()) - 1e-12)) / (reps + 1))

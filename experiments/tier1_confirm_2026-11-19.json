@@ -1,0 +1,534 @@
+{
+ "args": {
+  "seeds": 10,
+  "agents": 4,
+  "order": 3,
+  "budgets": [
+   20000,
+   80000
+  ],
+  "steps": 6000,
+  "out": "experiments/tier1_confirm_2026-11-19.json"
+ },
+ "per_seed": [
+  {
+   "budget": 20000,
+   "seed": 0,
+   "method": "kernel critic (branches)",
+   "mae": 0.35024595184782314,
+   "gap": -0.02165498440199098
+  },
+  {
+   "budget": 20000,
+   "seed": 0,
+   "method": "order-2 critic (small groups)",
+   "mae": 0.5178518530311923,
+   "gap": -0.060018903125163794
+  },
+  {
+   "budget": 20000,
+   "seed": 0,
+   "method": "additive, on-policy (VDN-like)",
+   "mae": 0.48493493486524103,
+   "gap": 0.23104355038395313
+  },
+  {
+   "budget": 20000,
+   "seed": 1,
+   "method": "kernel critic (branches)",
+   "mae": 0.4579836850115046,
+   "gap": 0.020324631925972263
+  },
+  {
+   "budget": 20000,
+   "seed": 1,
+   "method": "order-2 critic (small groups)",
+   "mae": 0.6515129144902517,
+   "gap": -0.038516376153989236
+  },
+  {
+   "budget": 20000,
+   "seed": 1,
+   "method": "additive, on-policy (VDN-like)",
+   "mae": 0.5713359931652874,
+   "gap": 0.11436092531742778
+  },
+  {
+   "budget": 20000,
+   "seed": 2,
+   "method": "kernel critic (branches)",
+   "mae": 0.3903225687606155,
+   "gap": -0.012676090873503895
+  },
+  {
+   "budget": 20000,
+   "seed": 2,
+   "method": "order-2 critic (small groups)",
+   "mae": 0.47141564894500687,
+   "gap": 0.0038443338204789766
+  },
+  {
+   "budget": 20000,
+   "seed": 2,
+   "method": "additive, on-policy (VDN-like)",
+   "mae": 0.5255386607990797,
+   "gap": 0.05474196290740688
+  },
+  {
+   "budget": 20000,
+   "seed": 3,
+   "method": "kernel critic (branches)",
+   "mae": 0.44626383098252176,
+   "gap": 0.0005951415967208572
+  },
+  {
+   "budget": 20000,
+   "seed": 3,
+   "method": "order-2 critic (small groups)",
+   "mae": 0.5518590284506875,
+   "gap": 0.01426650627650191
+  },
+  {
+   "budget": 20000,
+   "seed": 3,
+   "method": "additive, on-policy (VDN-like)",
+   "mae": 0.6018272604534278,
+   "gap": -0.20597264384504288
+  },
+  {
+   "budget": 20000,
+   "seed": 4,
+   "method": "kernel critic (branches)",
+   "mae": 0.37266974938260067,
+   "gap": 0.1079055988743823
+  },
+  {
+   "budget": 20000,
+   "seed": 4,
+   "method": "order-2 critic (small groups)",
+   "mae": 0.4578382015654294,
+   "gap": -0.023607591848593963
+  },
+  {
+   "budget": 20000,
+   "seed": 4,
+   "method": "additive, on-policy (VDN-like)",
+   "mae": 0.41726493579938756,
+   "gap": 0.012556081506152547
+  },
+  {
+   "budget": 20000,
+   "seed": 5,
+   "method": "kernel critic (branches)",
+   "mae": 0.41114049521807366,
+   "gap": -0.09666293172591117
+  },
+  {
+   "budget": 20000,
+   "seed": 5,
+   "method": "order-2 critic (small groups)",
+   "mae": 0.49104685273493426,
+   "gap": 0.03460533189067062
+  },
+  {
+   "budget": 20000,
+   "seed": 5,
+   "method": "additive, on-policy (VDN-like)",
+   "mae": 0.49190674139798307,
+   "gap": 0.07635503236506938
+  },
+  {
+   "budget": 20000,
+   "seed": 6,
+   "method": "kernel critic (branches)",
+   "mae": 0.43030510380921966,
+   "gap": 0.05301221182912009
+  },
+  {
+   "budget": 20000,
+   "seed": 6,
+   "method": "order-2 critic (small groups)",
+   "mae": 0.5448470502981638,
+   "gap": 0.04192820955117938
+  },
+  {
+   "budget": 20000,
+   "seed": 6,
+   "method": "additive, on-policy (VDN-like)",
+   "mae": 0.5008878479357904,
+   "gap": -0.061461089773552496
+  },
+  {
+   "budget": 20000,
+   "seed": 7,
+   "method": "kernel critic (branches)",
+   "mae": 0.41867949899207735,
+   "gap": -0.041514014911413356
+  },
+  {
+   "budget": 20000,
+   "seed": 7,
+   "method": "order-2 critic (small groups)",
+   "mae": 0.5813796669854867,
+   "gap": 0.0566424699784277
+  },
+  {
+   "budget": 20000,
+   "seed": 7,
+   "method": "additive, on-policy (VDN-like)",
+   "mae": 0.6061420217981921,
+   "gap": -0.0423606363702653
+  },
+  {
+   "budget": 20000,
+   "seed": 8,
+   "method": "kernel critic (branches)",
+   "mae": 0.4265527450086917,
+   "gap": -0.018714316789840854
+  },
+  {
+   "budget": 20000,
+   "seed": 8,
+   "method": "order-2 critic (small groups)",
+   "mae": 0.5306358043429303,
+   "gap": 0.07051534126726408
+  },
+  {
+   "budget": 20000,
+   "seed": 8,
+   "method": "additive, on-policy (VDN-like)",
+   "mae": 0.5561437640645439,
+   "gap": -0.015958967095780922
+  },
+  {
+   "budget": 20000,
+   "seed": 9,
+   "method": "kernel critic (branches)",
+   "mae": 0.3447412065177046,
+   "gap": 0.017000336746954774
+  },
+  {
+   "budget": 20000,
+   "seed": 9,
+   "method": "order-2 critic (small groups)",
+   "mae": 0.46562834198004616,
+   "gap": -0.009505979974432078
+  },
+  {
+   "budget": 20000,
+   "seed": 9,
+   "method": "additive, on-policy (VDN-like)",
+   "mae": 0.6703987046648942,
+   "gap": -0.3132006443141916
+  },
+  {
+   "budget": 80000,
+   "seed": 0,
+   "method": "kernel critic (branches)",
+   "mae": 0.23122516143965577,
+   "gap": 0.034320562710391425
+  },
+  {
+   "budget": 80000,
+   "seed": 0,
+   "method": "order-2 critic (small groups)",
+   "mae": 0.3621615488286943,
+   "gap": -0.02753318403473396
+  },
+  {
+   "budget": 80000,
+   "seed": 0,
+   "method": "additive, on-policy (VDN-like)",
+   "mae": 0.4920377808972292,
+   "gap": 0.2204825184439981
+  },
+  {
+   "budget": 80000,
+   "seed": 1,
+   "method": "kernel critic (branches)",
+   "mae": 0.33652472076632944,
+   "gap": -0.06667388887021844
+  },
+  {
+   "budget": 80000,
+   "seed": 1,
+   "method": "order-2 critic (small groups)",
+   "mae": 0.4698179395198186,
+   "gap": -0.0015388267677032752
+  },
+  {
+   "budget": 80000,
+   "seed": 1,
+   "method": "additive, on-policy (VDN-like)",
+   "mae": 0.5680536480831184,
+   "gap": 0.10085028758847907
+  },
+  {
+   "budget": 80000,
+   "seed": 2,
+   "method": "kernel critic (branches)",
+   "mae": 0.3031877194090144,
+   "gap": 0.020564795090373143
+  },
+  {
+   "budget": 80000,
+   "seed": 2,
+   "method": "order-2 critic (small groups)",
+   "mae": 0.3634114112279027,
+   "gap": -0.029675083405319182
+  },
+  {
+   "budget": 80000,
+   "seed": 2,
+   "method": "additive, on-policy (VDN-like)",
+   "mae": 0.5659663390868191,
+   "gap": 0.06741751459924974
+  },
+  {
+   "budget": 80000,
+   "seed": 3,
+   "method": "kernel critic (branches)",
+   "mae": 0.28639264234357387,
+   "gap": -0.04611449927796323
+  },
+  {
+   "budget": 80000,
+   "seed": 3,
+   "method": "order-2 critic (small groups)",
+   "mae": 0.42460769090460077,
+   "gap": 0.0830475782657802
+  },
+  {
+   "budget": 80000,
+   "seed": 3,
+   "method": "additive, on-policy (VDN-like)",
+   "mae": 0.571287270481841,
+   "gap": -0.1881138141150444
+  },
+  {
+   "budget": 80000,
+   "seed": 4,
+   "method": "kernel critic (branches)",
+   "mae": 0.247115468233353,
+   "gap": -0.008328780611819943
+  },
+  {
+   "budget": 80000,
+   "seed": 4,
+   "method": "order-2 critic (small groups)",
+   "mae": 0.3860663945882024,
+   "gap": 0.029029166988741393
+  },
+  {
+   "budget": 80000,
+   "seed": 4,
+   "method": "additive, on-policy (VDN-like)",
+   "mae": 0.43130482375678003,
+   "gap": -0.026484987042630838
+  },
+  {
+   "budget": 80000,
+   "seed": 5,
+   "method": "kernel critic (branches)",
+   "mae": 0.2661016988376165,
+   "gap": -0.01880738737846726
+  },
+  {
+   "budget": 80000,
+   "seed": 5,
+   "method": "order-2 critic (small groups)",
+   "mae": 0.3847343084008534,
+   "gap": 0.03352013585528982
+  },
+  {
+   "budget": 80000,
+   "seed": 5,
+   "method": "additive, on-policy (VDN-like)",
+   "mae": 0.4771791071686586,
+   "gap": 0.10337746861664275
+  },
+  {
+   "budget": 80000,
+   "seed": 6,
+   "method": "kernel critic (branches)",
+   "mae": 0.27969096997374254,
+   "gap": 0.03748686699979614
+  },
+  {
+   "budget": 80000,
+   "seed": 6,
+   "method": "order-2 critic (small groups)",
+   "mae": 0.38742153654825007,
+   "gap": 0.017868164419695638
+  },
+  {
+   "budget": 80000,
+   "seed": 6,
+   "method": "additive, on-policy (VDN-like)",
+   "mae": 0.49006403565793666,
+   "gap": -0.10621704877440659
+  },
+  {
+   "budget": 80000,
+   "seed": 7,
+   "method": "kernel critic (branches)",
+   "mae": 0.38735896245789525,
+   "gap": 0.026064022010198043
+  },
+  {
+   "budget": 80000,
+   "seed": 7,
+   "method": "order-2 critic (small groups)",
+   "mae": 0.46404719032128966,
+   "gap": 0.06477332390576772
+  },
+  {
+   "budget": 80000,
+   "seed": 7,
+   "method": "additive, on-policy (VDN-like)",
+   "mae": 0.5880244872016568,
+   "gap": -0.03596767770926823
+  },
+  {
+   "budget": 80000,
+   "seed": 8,
+   "method": "kernel critic (branches)",
+   "mae": 0.29977624501826133,
+   "gap": -0.008861920228817757
+  },
+  {
+   "budget": 80000,
+   "seed": 8,
+   "method": "order-2 critic (small groups)",
+   "mae": 0.4254148080313783,
+   "gap": -0.009971952478587419
+  },
+  {
+   "budget": 80000,
+   "seed": 8,
+   "method": "additive, on-policy (VDN-like)",
+   "mae": 0.529260900801428,
+   "gap": -0.005186142612520952
+  },
+  {
+   "budget": 80000,
+   "seed": 9,
+   "method": "kernel critic (branches)",
+   "mae": 0.2779809434423223,
+   "gap": 8.077430411215173e-05
+  },
+  {
+   "budget": 80000,
+   "seed": 9,
+   "method": "order-2 critic (small groups)",
+   "mae": 0.3600907843973911,
+   "gap": 0.009833250576003715
+  },
+  {
+   "budget": 80000,
+   "seed": 9,
+   "method": "additive, on-policy (VDN-like)",
+   "mae": 0.6526716969393612,
+   "gap": -0.277214599147259
+  }
+ ],
+ "summary": {
+  "20000/additive, on-policy (VDN-like)": {
+   "iqm": 0.5401546533780813,
+   "ci95": [
+    0.4946010733593253,
+    0.5918144267699311
+   ],
+   "mean": 0.5426380864943827,
+   "gap_mean": -0.014989642891882348,
+   "gap_sd": 0.15618473016783227,
+   "seeds": 10
+  },
+  "20000/kernel critic (branches)": {
+   "iqm": 0.4096365469150737,
+   "ci95": [
+    0.3733202485813177,
+    0.4329621982655265
+   ],
+   "mean": 0.4048904835530832,
+   "gap_mean": 0.0007615582270490018,
+   "gap_sd": 0.05497226831592911,
+   "seeds": 10
+  },
+  "20000/order-2 critic (small groups)": {
+   "iqm": 0.5192037798210136,
+   "ci95": [
+    0.481018097387116,
+    0.5622127084833678
+   ],
+   "mean": 0.5264015362824128,
+   "gap_mean": 0.009015334168234359,
+   "gap_sd": 0.042524892220760634,
+   "seeds": 10
+  },
+  "80000/additive, on-policy (VDN-like)": {
+   "iqm": 0.5371988643876967,
+   "ci95": [
+    0.49051299267336085,
+    0.5778294562849282
+   ],
+   "mean": 0.536585009007483,
+   "gap_mean": -0.014705648015276036,
+   "gap_sd": 0.1480959185603833,
+   "seeds": 10
+  },
+  "80000/kernel critic (branches)": {
+   "iqm": 0.28569710198024306,
+   "ci95": [
+    0.26372511427394935,
+    0.3147838949915761
+   ],
+   "mean": 0.29153545319217644,
+   "gap_mean": -0.003026945525241573,
+   "gap_sd": 0.03442764930884742,
+   "seeds": 10
+  },
+  "80000/order-2 critic (small groups)": {
+   "iqm": 0.3954486080143094,
+   "ci95": [
+    0.36996846171223485,
+    0.4335160378590205
+   ],
+   "mean": 0.40277736127683816,
+   "gap_mean": 0.016935257332493462,
+   "gap_sd": 0.03703932612647612,
+   "seeds": 10
+  }
+ },
+ "tests": {
+  "20000": {
+   "p": 0.0021498925053747312,
+   "p_holm": 0.0042997850107494625,
+   "kernel_better_on_seeds": 10
+  },
+  "80000": {
+   "p": 0.0021498925053747312,
+   "p_holm": 0.0042997850107494625,
+   "kernel_better_on_seeds": 10
+  }
+ },
+ "seconds": 190,
+ "provenance": {
+  "commit": "e9f3093",
+  "dirty": false,
+  "command": "experiments/tier1_confirm.py --seeds 10 --agents 4 --order 3 --budgets 20000 80000 --out experiments/tier1_confirm_2026-11-19.json",
+  "config_hash": "51b6db529824",
+  "python": "3.13.18",
+  "platform": "Linux-6.18.44-fc-v653-x86_64-with-glibc2.39",
+  "device": "cpu:0",
+  "versions": {
+   "numpy": "2.5.3",
+   "jax": "0.12.0.1",
+   "optax": "0.2.8",
+   "jumanji": "1.1.2"
+  },
+  "seconds": 190.9,
+  "finished": "2026-11-19T07:45:06Z",
+  "preregistered": false
+ }
+}

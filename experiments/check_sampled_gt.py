@@ -7,7 +7,7 @@ from critic_budget import sampled_shapley, direct_permutation_audit, take
 from accteams.branching import all_masks, make_branch_fn, shapley_from_mask_values
 from envs import collect, get_env
 spec = get_env("lbf", 4); N = spec.n
-branch = make_branch_fn(spec.step, spec.policy, spec.reference_action, horizon=10, gamma=0.99, window=20)
+branch = make_branch_fn(spec.step, spec.policy, spec.reference_action, horizon=10, gamma=0.99, window=10)
 run = jax.jit(jax.vmap(branch, in_axes=(None, None, 0, 0)))
 states, obs, last = collect(spec, jax.random.PRNGKey(3), 40)
 live = np.where(spec.live(states) & ~last)[0][:12]

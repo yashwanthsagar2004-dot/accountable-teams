@@ -8,9 +8,10 @@ refuses to finish if any remain. Add your own strings (name, college, handles) t
 import pathlib, re, subprocess, sys, zipfile
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
-IDENTIFYING = [r"yashwanthsagar2004[-\w]*", r"Yashwanth", r"\bYash\b", r"\bGone\b", r"MVSR", r"Osmania", r"Hyderabad"]
-SKIP = ("notebooks/", "PROJECT_LOG.md", ".github/", "tools/make_supplement.py")
-pattern = re.compile("|".join(IDENTIFYING), re.IGNORECASE)
+IDENTIFYING = [r"(?i:yashwanthsagar2004[-\w]*)", r"(?i:Yashwanth)", r"\bYash\b", r"\bGone\b", r"(?i:MVSR)", r"(?i:Osmania)",
+               r"(?i:Hyderabad)"]   # surname and first name case-sensitive: "gone" in other text is kept (review R10)
+SKIP = (".claude/skills/", "notebooks/", "PROJECT_LOG.md", ".github/", "tools/make_supplement.py")
+pattern = re.compile("|".join(IDENTIFYING))
 files = subprocess.run(["git", "ls-files"], cwd=ROOT, capture_output=True, text=True).stdout.split()
 left, size = [], 0
 with zipfile.ZipFile(ROOT / "supplement.zip", "w", zipfile.ZIP_DEFLATED) as z:

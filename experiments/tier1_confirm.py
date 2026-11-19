@@ -7,7 +7,7 @@ import argparse, json, sys, time
 import numpy as np
 sys.path.insert(0, "src")
 from accteams.provenance import stamp
-from accteams.stats import holm, iqm, stratified_bootstrap_ci
+from accteams.stats import holm, iqm, paired_sign_flip, stratified_bootstrap_ci
 from accteams.train_tier1 import run
 
 ap = argparse.ArgumentParser()
@@ -20,13 +20,6 @@ ap.add_argument("--out", default="experiments/tier1_confirm.json")
 args = ap.parse_args()
 
 
-def paired_sign_flip(x, y, reps=20000, seed=0):
-    """Two-sided p-value for a mean paired difference: flip the sign of each seed's difference at random."""
-    d = np.asarray(x, float) - np.asarray(y, float)
-    rng = np.random.default_rng(seed)
-    flips = rng.choice([-1.0, 1.0], size=(reps, d.size))
-    null = np.abs((flips * d).mean(1))
-    return float((1 + np.sum(null >= abs(d.mean()) - 1e-12)) / (reps + 1))
 
 
 t0, per_seed, summary, pvals = time.time(), [], {}, {}
