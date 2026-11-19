@@ -12,7 +12,7 @@ import numpy as np
 sys.path.insert(0, "src")
 sys.path.insert(0, "experiments")
 from accteams.mappo import Config, make_trainer
-from accteams.provenance import stamp
+from accteams.provenance import check_resume, fingerprint, stamp, write_json_atomic
 from accteams.stats import iqm, stratified_bootstrap_ci
 from envs import get_env
 
@@ -41,6 +41,7 @@ def main():
     runs, curves = [], {}
     if os.path.exists(partial):  # resume after a lost runtime: keep finished (credit, seed) pairs
         prev = json.load(open(partial))
+        check_resume(prev.get("fingerprint"), vars(args), partial)
         runs, curves = prev["runs"], prev["curves"]
         print(f"resuming from {partial}: {len(runs)} runs done", flush=True)
     done = {(r["credit"], r["seed"]) for r in runs}
@@ -64,7 +65,8 @@ def main():
             for name in ("entropy", "credit_to_gae_sd"):
                 curves[f"{name}:{credit}/{seed}"] = np.round(np.asarray(m[name], float), 4).tolist()
             print(json.dumps(runs[-1]), flush=True)
-            json.dump(dict(args=vars(args), runs=runs, curves=curves), open(partial, "w"))
+            write_json_atomic(dict(args=vars(args), runs=runs, curves=curves, fingerprint=fingerprint(vars(args))),
+                              partial)
     summary = {}
     for credit in args.credits.split(","):
         fin = np.array([r["final_reward_per_step"] for r in runs if r["credit"] == credit])

@@ -25,7 +25,7 @@ sys.path.insert(0, "src")
 sys.path.insert(0, "experiments")
 from accteams.branching import all_masks, make_branch_fn, shapley_from_mask_values
 from accteams.critic import KernelCritic, fit
-from accteams.provenance import stamp
+from accteams.provenance import check_resume, fingerprint, stamp, write_json_atomic
 from accteams.setcritic import (SetKernelCritic, calibrate_scale, ensemble_readout, fit_ensemble, gated_hybrid,
                                 permutation_estimate, precision_weighted)
 from accteams.shapley import sample_kernel_coalitions
@@ -44,9 +44,13 @@ def spearman(x, y):
 class StageCache:
     """Pickled results of the expensive stages of one seed, so a lost runtime resumes inside a seed."""
 
-    def __init__(self, out, seed):
+    def __init__(self, out, seed, config):
         self.dir = f"{out}.cache/seed{seed}"
         os.makedirs(self.dir, exist_ok=True)
+        fp_path = os.path.join(self.dir, "fingerprint.json")
+        if os.listdir(self.dir) and os.listdir(self.dir) != ["fingerprint.json"]:
+            check_resume(json.load(open(fp_path)) if os.path.exists(fp_path) else None, config, self.dir)
+        write_json_atomic(fingerprint(config), fp_path)
 
     def get(self, name, make):
         path = os.path.join(self.dir, name + ".pkl")
@@ -138,14 +142,18 @@ def main():
     masks_all = all_masks(N) if gt_mode == "exact" else None
     budgets = [k for k in (8, 16, 32, 64, 128) if k >= 2 * N]
     partial = args.out + ".partial"
-    rows = json.load(open(partial))["runs"] if os.path.exists(partial) else []  # resume after a lost runtime
+    rows = []
+    if os.path.exists(partial):                                  # resume after a lost runtime, same code only
+        prev = json.load(open(partial))
+        check_resume(prev.get("fingerprint"), vars(args), partial)
+        rows = prev["runs"]
     if rows:
         print(f"resuming from {partial}: seeds {[r['seed'] for r in rows]} done", flush=True)
     for seed in range(args.seeds):
         if any(r["seed"] == seed for r in rows):
             continue
         t0 = time.time()
-        cache = StageCache(args.out, seed)
+        cache = StageCache(args.out, seed, vars(args))
         rng = np.random.default_rng(seed)
         key = jax.random.PRNGKey(seed)
         k_col, k_act, k_br, k_eval, k_gt, k_au = jax.random.split(key, 6)
@@ -272,7 +280,7 @@ def main():
                    top_agent_match=float(np.mean(set_mean[test].argmax(1) == ph.argmax(1))),
                    seconds_train=round(t_train, 1), seconds=round(time.time() - t0, 1))
         rows.append(row)
-        json.dump(dict(args=vars(args), runs=rows), open(partial, "w"))
+        write_json_atomic(dict(args=vars(args), runs=rows, fingerprint=fingerprint(vars(args))), partial)
         print(json.dumps({k: (round(v, 3) if isinstance(v, float) else v) for k, v in row.items() if k != "rel_err_top_quarter"}), flush=True)
 
     keys = rows[0]["rel_err"].keys()

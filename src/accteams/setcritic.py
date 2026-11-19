@@ -20,7 +20,7 @@ import jax
 import jax.numpy as jnp
 import numpy as np
 
-from .critic import fit
+from .critic import anchored_kernel_loss, anchored_delta_loss, fit
 
 
 def _dense(key, din, dout):
@@ -97,9 +97,8 @@ class SetKernelCritic:
     @staticmethod
     def loss(params, batch):
         x, a, g, mask, ret, kind = batch                          # kind: 0 = empty, 1 = full team, 2 = kernel
-        b, total, r = SetKernelCritic.heads(params, x, a, g)
-        pred = jnp.where(kind == 0, b, jnp.where(kind == 1, total, b + (mask * r).sum(-1)))
-        return jnp.mean((pred - ret) ** 2)
+        raw, team = set_forward(params, x, a, g)
+        return anchored_kernel_loss(team[:, 0], team[:, 1], raw, mask, ret, kind)
 
     def readout(self, x, a, g, chunk=4096):
         f = jax.jit(lambda p, x, a, g: SetKernelCritic.heads(p, x, a, g)[2])
@@ -122,8 +121,8 @@ class SetDeltaKernelCritic:
     @staticmethod
     def loss(params, batch):
         x, a, g, mask, d, full = batch
-        total, r = SetDeltaKernelCritic.heads(params, x, a, g)
-        return jnp.mean((jnp.where(full == 1, total, (mask * r).sum(-1)) - d) ** 2)
+        raw, team = set_forward(params, x, a, g)
+        return anchored_delta_loss(team[:, 0], raw, mask, d, full)
 
     def readout(self, x, a, g, chunk=4096):
         f = jax.jit(lambda p, x, a, g: SetDeltaKernelCritic.heads(p, x, a, g)[1])

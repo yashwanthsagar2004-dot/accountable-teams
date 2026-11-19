@@ -7,7 +7,7 @@ Exits non-zero if a record is missing, a number has drifted from its record, or 
 README, the paper tables and the interactive bench can never quote a number the records do not contain.
 """
 from __future__ import annotations
-import argparse, json, pathlib, subprocess, sys
+import argparse, json, math, pathlib, subprocess, sys
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 STATUSES = {"known", "checked", "exploratory", "fails", "untested"}
@@ -49,7 +49,7 @@ def main() -> int:
             except (KeyError, IndexError, TypeError, ValueError) as exc:
                 errors.append(f"{c['id']}: cannot read {ev['file']}: {exc}")
                 continue
-            if abs(got - ev["value"]) > ev["tol"]:
+            if not math.isfinite(got) or not abs(got - ev["value"]) <= ev["tol"]:   # NaN never passes (review R3)
                 errors.append(f"{c['id']}: {ev['label']} is {got:.4f} in {ev['file']}, ledger says {ev['value']}")
             shown.append(f"{ev['label']}: {got:.3f} (`{ev['file']}`)")
         if args.checks and c["kind"] == "theorem" and c["check"]:

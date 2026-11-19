@@ -12,7 +12,7 @@ pip -q install -e . jumanji > /tmp/pip.log 2>&1
 # credit comparison (fixed credit, 10 seeds x 10k updates) alongside the LBF critic run; RWARE after LBF
 XLA_PYTHON_CLIENT_MEM_FRACTION=0.3 nohup python experiments/credit_compare.py --env lbf --agents 4 --updates 10000 \
   --seeds 10 --out "$D/credit_compare_lbf_v2.json" >> "$D/cc_lbf_v2.log" 2>&1 &
-XLA_PYTHON_CLIENT_MEM_FRACTION=0.3 nohup python experiments/critic_budget.py --env lbf --agents 4 --window 20 \
+XLA_PYTHON_CLIENT_MEM_FRACTION=0.3 nohup python experiments/critic_budget.py --env lbf --agents 4 --window 20 --horizon 20 \
   --seeds 3 --out "$D/critic_budget_lbf_w20.json" >> "$D/cb_lbf.log" 2>&1 &
 P=$!
 nohup bash -c "while kill -0 $P 2>/dev/null; do sleep 30; done; XLA_PYTHON_CLIENT_MEM_FRACTION=0.6 python \

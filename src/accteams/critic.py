@@ -34,6 +34,30 @@ def mlp_apply(params, x):
     return x @ w + b
 
 
+def anchored_kernel_loss(b, total, raw, mask, g, kind):
+    """Kernel regression with the anchors fitted apart.
+
+    b = v(empty) and total = v(N) are fitted only on the empty and full-team branches (kind 0 and 1). On kernel
+    coalitions (kind 2) the anchors enter with their gradients stopped, so the kernel term moves only the per-agent
+    heads, efficiently normalised to the (fixed) total - b. With the anchors at their targets this is the constrained
+    weighted least squares whose solution is the Shapley value (Lundberg and Lee 2017; FastSHAP). Letting kernel
+    gradients reach b and total, as before 19 Nov 2026, biased the optimum (adversarial review finding C1).
+    """
+    n = raw.shape[1]
+    bs, ts = jax.lax.stop_gradient(b), jax.lax.stop_gradient(total)
+    rk = raw + ((ts - bs - raw.sum(-1)) / n)[:, None]
+    pred = jnp.where(kind == 0, b, jnp.where(kind == 1, total, bs + (mask * rk).sum(-1)))
+    return jnp.mean((pred - g) ** 2)
+
+
+def anchored_delta_loss(total, raw, mask, d, full):
+    """Paired-difference version: total = v(N) - v(empty) is fitted on full-team pairs only."""
+    n = raw.shape[1]
+    ts = jax.lax.stop_gradient(total)
+    rk = raw + ((ts - raw.sum(-1)) / n)[:, None]
+    return jnp.mean((jnp.where(full == 1, total, (mask * rk).sum(-1)) - d) ** 2)
+
+
 class KernelCritic:
     """v_hat(S) = b + sum_{i in S} r_i, with r efficiently normalised so that b + sum_i r_i = v_hat(N)."""
 
@@ -53,9 +77,9 @@ class KernelCritic:
     @staticmethod
     def loss(params, batch, n):
         h, a, mask, g, kind = batch                               # kind: 0 = empty, 1 = full team, 2 = kernel
-        b, total, r = KernelCritic.heads(params, h, a, n)
-        pred = jnp.where(kind == 0, b, jnp.where(kind == 1, total, b + (mask * r).sum(-1)))
-        return jnp.mean((pred - g) ** 2)
+        out = mlp_apply(params, jnp.concatenate([h, a], -1))
+        b, total, raw = out[:, 0], out[:, 1], out[:, 2:]
+        return anchored_kernel_loss(b, total, raw, mask, g, kind)
 
     def readout(self, h, a):
         return np.asarray(KernelCritic.heads(self.params, h, a, self.n)[2])
@@ -81,9 +105,8 @@ class DeltaKernelCritic:
     @staticmethod
     def loss(params, batch, n):
         h, a, mask, d, full = batch                               # full = 1 when S is the whole team
-        total, r = DeltaKernelCritic.heads(params, h, a, n)
-        pred = jnp.where(full == 1, total, (mask * r).sum(-1))
-        return jnp.mean((pred - d) ** 2)
+        out = mlp_apply(params, jnp.concatenate([h, a], -1))
+        return anchored_delta_loss(out[:, 0], out[:, 1:], mask, d, full)
 
     def readout(self, h, a):
         return np.asarray(DeltaKernelCritic.heads(self.params, h, a, self.n)[1])

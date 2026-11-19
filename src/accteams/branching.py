@@ -33,6 +33,8 @@ def make_branch_fn(env_step: Callable, policy: Callable, reference_action, horiz
         the theory does not. Use it when one decision alone moves the return too little to measure.
     """
     reference_action = jnp.asarray(reference_action)
+    if window > horizon:   # the window acts inside the horizon only; a longer one used to be cut silently (review C2)
+        raise ValueError(f"window ({window}) must not exceed horizon ({horizon})")
 
     def branch(state, actions, mask, key):
         if reseed is not None:
