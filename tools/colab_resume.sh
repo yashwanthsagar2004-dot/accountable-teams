@@ -10,6 +10,11 @@ cd /content
 [ -d accountable-teams ] || git clone -q -b set-critic https://github.com/yashwanthsagar2004-dot/accountable-teams
 cd accountable-teams && git pull -q origin set-critic && git log --oneline -1
 pip -q install -e . jumanji > /tmp/pip.log 2>&1
+# Installing jumanji can upgrade jaxlib past Colab's CUDA plugin; JAX then fails to start its GPU backend
+# ("Unexpected option name ... memory_fraction_policy", 20 Nov 2026). Install the plugin that matches jaxlib.
+JV=$(python -c "import jaxlib; print(jaxlib.__version__)")
+pip -q install -U "jax[cuda13]==$JV" >> /tmp/pip.log 2>&1
+python -c "import jax; d = jax.devices()[0]; assert d.platform == 'gpu', d; print('JAX', jax.__version__, 'on', d)" || { echo "NO GPU: stopping"; exit 1; }
 # credit comparison (fixed credit, 10 seeds x 10k updates) alongside the LBF critic run; RWARE after LBF
 XLA_PYTHON_CLIENT_MEM_FRACTION=0.3 nohup python experiments/credit_compare.py --env lbf --agents 4 --updates 10000 \
   --seeds 10 --out "$D/credit_compare_lbf_v3.json" >> "$D/cc_lbf_v3.log" 2>&1 &
