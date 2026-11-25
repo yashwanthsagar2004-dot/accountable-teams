@@ -66,6 +66,32 @@ nb.cells += [md(
     "is a screening tool that says where to look, not a verdict that says who is to blame."),
 ]
 
+nb.cells += [md(
+    "## Level-Based Foraging gate, seed 1 of 3\n\n"
+    "Record: `experiments/critic_budget_lbf_w20_v3.seeds01.partial.json` (same run, same commit and config; it holds "
+    "seeds 0 and 1). Seed 1 resumed on 25 Nov from its saved stages (training branches and flat critic of 20 Nov)."),
+    code("show('experiments/critic_budget_lbf_w20_v3.seeds01.partial.json')"),
+    md(
+    "### Observation after successful output\n\n"
+    "**Recorded:** 25 Nov 2026, 08:48 IST. **Run finished:** 25 Nov 2026, 08:42 IST (03:12 UTC), Colab T4, "
+    "commit `f7fca03`, clean tree.\n\n"
+    "**What the output says.** Seed 1 repeats the pattern of seed 0, more weakly:\n\n"
+    "- The **flat critic** (no reruns) has error **0.85**, again better than 32-rerun Monte Carlo (0.93) but worse than "
+    "64 reruns (0.72). It is worth about 40 reruns per decision. **The gate condition passes again: 2 of 2 seeds.**\n"
+    "- The **set-critic ensemble** is again no better than answering zero (1.15). It fails on both seeds.\n"
+    "- Combining critic and reruns helps at 32 reruns (0.79 vs 0.93) but not at 128 (0.61 vs 0.56): with many reruns, "
+    "the reruns alone are already better than the critic can add.\n"
+    "- The ensemble's disagreement tracks its error a little better than on seed 0 (Spearman 0.61); it still finds the "
+    "most responsible agent only 37% of the time.\n\n"
+    "Mean over the two seeds: flat critic 0.76, 32-rerun Monte Carlo 0.92, 64-rerun Monte Carlo 0.70.\n\n"
+    "**What it means for the project.** The cheap critic's advantage over a modest rerun budget holds on a second "
+    "seed, so the seed-0 result was not a fluke. It is a narrow advantage (roughly the value of 32 to 64 reruns), and "
+    "the attention-based set critic needs work before the 8- and 16-agent experiments, where it is supposed to matter "
+    "most. The verdict waits for seed 2.\n\n"
+    "**What it means in the real world.** Same as seed 0: a trained critic is a cheap first pass over every decision, "
+    "and the replay budget should go to the decisions that matter. Where replays are plentiful, they beat the critic."),
+]
+
 NotebookClient(nb, timeout=120, kernel_name="python3").execute()
 nbf.write(nb, "notebooks/results_v3.ipynb")
 print("wrote notebooks/results_v3.ipynb")
